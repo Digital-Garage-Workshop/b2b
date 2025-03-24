@@ -1,0 +1,199 @@
+export const MailIcon = () => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="48"
+      height="49"
+      viewBox="0 0 48 49"
+      fill="none"
+    >
+      <rect
+        x="0.769231"
+        y="1.47919"
+        width="46.4615"
+        height="46.4615"
+        rx="3.23077"
+        fill="#F9FAFB"
+        stroke="#667085"
+        strokeWidth="1.53846"
+      />
+      <mask
+        id="mask0_401_1588"
+        // style="mask-type:alpha"
+        maskUnits="userSpaceOnUse"
+        x="1"
+        y="2"
+        width="46"
+        height="46"
+      >
+        <rect
+          x="1.68079"
+          y="2.55957"
+          width="44.6131"
+          height="44.6024"
+          rx="4"
+          fill="#E3EFFF"
+        />
+      </mask>
+      <g mask="url(#mask0_401_1588)">
+        <line
+          x1="32.8206"
+          y1="0.709961"
+          x2="32.8206"
+          y2="50.758"
+          stroke="#D0D5DD"
+          strokeWidth="1.02564"
+        />
+        <line
+          x1="41.1283"
+          y1="0.709961"
+          x2="41.1283"
+          y2="50.758"
+          stroke="#D0D5DD"
+          strokeWidth="1.02564"
+        />
+        <line
+          x1="24.5128"
+          y1="0.709961"
+          x2="24.5128"
+          y2="50.758"
+          stroke="#D0D5DD"
+          strokeWidth="1.02564"
+        />
+        <line
+          x1="7.89746"
+          y1="0.709961"
+          x2="7.89747"
+          y2="50.758"
+          stroke="#D0D5DD"
+          strokeWidth="1.02564"
+        />
+        <line
+          x1="16.2052"
+          y1="0.709961"
+          x2="16.2052"
+          y2="50.758"
+          stroke="#D0D5DD"
+          strokeWidth="1.02564"
+        />
+        <line
+          x1="-1.02405"
+          y1="16.9134"
+          x2="49.024"
+          y2="16.9134"
+          stroke="#D0D5DD"
+          strokeWidth="1.02564"
+        />
+        <line
+          x1="-1.02405"
+          y1="8.60534"
+          x2="49.024"
+          y2="8.60534"
+          stroke="#D0D5DD"
+          strokeWidth="1.02564"
+        />
+        <line
+          x1="-1.02405"
+          y1="25.2211"
+          x2="49.024"
+          y2="25.2211"
+          stroke="#D0D5DD"
+          strokeWidth="1.02564"
+        />
+        <line
+          x1="-1.02405"
+          y1="41.8363"
+          x2="49.024"
+          y2="41.8363"
+          stroke="#D0D5DD"
+          strokeWidth="1.02564"
+        />
+        <line
+          x1="-1.02405"
+          y1="33.5287"
+          x2="49.024"
+          y2="33.5287"
+          stroke="#D0D5DD"
+          strokeWidth="1.02564"
+        />
+        <rect
+          x="1.41187"
+          y="2.24463"
+          width="45.0024"
+          height="44.9916"
+          rx="4"
+          fill="url(#paint0_radial_401_1588)"
+        />
+      </g>
+      <g filter="url(#filter0_d_401_1588)">
+        <path
+          d="M13.2546 18.6068C13.2546 16.9697 14.5818 15.6426 16.2189 15.6426H31.7812C33.4184 15.6426 34.7454 16.9697 34.7454 18.6068V30.3717C34.7454 32.0088 33.4184 33.3359 31.7812 33.3359H16.2189C14.5818 33.3359 13.2546 32.0088 13.2546 30.3717L13.2546 18.6068Z"
+          fill="white"
+          stroke="#667085"
+          strokeWidth="1.23077"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M14.3999 16.2402L22.6078 23.6106C23.3965 24.3189 24.595 24.3095 25.3725 23.589L33.3029 16.2402"
+          fill="#D0D5DD"
+        />
+        <path
+          d="M14.3998 16.4233L22.6077 23.7937C23.3964 24.502 24.5949 24.4926 25.3724 23.7721L33.3027 16.4233"
+          stroke="#667085"
+          strokeWidth="1.23077"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </g>
+      <defs>
+        <filter
+          id="filter0_d_401_1588"
+          x="8.63928"
+          y="12.0273"
+          width="30.7216"
+          height="26.9238"
+          filterUnits="userSpaceOnUse"
+          colorInterpolationFilters="sRGB"
+        >
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
+          <feColorMatrix
+            in="SourceAlpha"
+            type="matrix"
+            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+            result="hardAlpha"
+          />
+          <feOffset dy="1" />
+          <feGaussianBlur stdDeviation="2" />
+          <feComposite in2="hardAlpha" operator="out" />
+          <feColorMatrix
+            type="matrix"
+            values="0 0 0 0 0.0969792 0 0 0 0 0.127894 0 0 0 0 0.2375 0 0 0 0.08 0"
+          />
+          <feBlend
+            mode="normal"
+            in2="BackgroundImageFix"
+            result="effect1_dropShadow_401_1588"
+          />
+          <feBlend
+            mode="normal"
+            in="SourceGraphic"
+            in2="effect1_dropShadow_401_1588"
+            result="shape"
+          />
+        </filter>
+        <radialGradient
+          id="paint0_radial_401_1588"
+          cx="0"
+          cy="0"
+          r="1"
+          gradientUnits="userSpaceOnUse"
+          gradientTransform="translate(23.9131 24.7404) rotate(90) scale(22.4958 22.5012)"
+        >
+          <stop stopColor="#F6FAFD" stopOpacity="0.28" />
+          <stop offset="1" stopColor="#F6FAFD" />
+        </radialGradient>
+      </defs>
+    </svg>
+  );
+};

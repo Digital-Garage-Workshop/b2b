@@ -1,0 +1,7 @@
+export * from './Logo'
+export * from './ExelIcon'
+export * from './MailIcon'
+export * from './PhoneIcon'
+export * from './Capitronbank'
+export * from './QpayIcon'
+export * from './PlateTemplate'
