@@ -10,6 +10,9 @@ import {
   Stack,
 } from "@chakra-ui/react";
 import { IconChevronRight } from "@tabler/icons-react";
+import { OemNumber } from "@/_services";
+import { UseApi } from "@/hooks";
+import { useParams } from "next/navigation";
 // import { UseApi } from "@/hooks/useApi";
 // import { OeNumber } from "@/services";
 
@@ -77,18 +80,19 @@ const data = [
 ];
 
 export const PartOeNumbers = () => {
-  //   const [{ data, isLoading, error }, fetch] = UseApi({
-  //     service: OeNumber,
-  //   });
+  const { articleid } = useParams() as { articleid: string };
+  const [{ data, isLoading, error }, fetch] = UseApi({
+    service: OemNumber,
+  });
 
   const [showAll, setShowAll] = useState(false);
 
-  //   useEffect(() => {
-  //     if (articleId)
-  //       fetch({
-  //         articleId: articleId,
-  //       });
-  //   }, [articleId]);
+  useEffect(() => {
+    if (articleid)
+      fetch({
+        articleid: articleid,
+      });
+  }, [articleid]);
 
   const handleShowMore = () => setShowAll(!showAll);
 

@@ -1,5 +1,4 @@
 "use client";
-
 import { Footer, Header } from "@/components";
 import theme from "@/theme";
 import {
@@ -7,9 +6,10 @@ import {
   ChakraProvider,
   ColorModeScript,
 } from "@chakra-ui/react";
-import { usePathname } from "next/navigation";
-import { ReactNode, useEffect, useState } from "react";
-import PageTransition from "./PageTransition";
+import { ReactNode, Suspense, useEffect } from "react";
+import { SessionProvider } from "next-auth/react";
+import { Provider } from "react-redux";
+import store from "@/redux/store";
 
 export const Providers = ({
   children,
@@ -17,19 +17,40 @@ export const Providers = ({
 {
   children: ReactNode;
 }) => {
+  useEffect(() => {
+    import("@userback/widget")
+      .then((Userback) => {
+        Userback.default("A-VqwD44zeaW8yf65jsLL1O1LEQ").then((ub: any) => {
+          ub.identify("123456", {
+            name: "someone",
+            email: "someone@example.com",
+          });
+        });
+      })
+      .catch((error) => {
+        console.error("Failed to load Userback widget:", error);
+      });
+  }, []);
+
   return (
     <>
-      {/* <PageTransition> */}
-      <ColorModeScript initialColorMode={theme.config.initialColorMode} />
-      <ChakraBaseProvider>
-        <ChakraProvider theme={theme}>
-          <Header />
-          <div className="w-full flex justify-center">
-            <div className="w-[82%]">{children}</div>
-          </div>
-          <Footer />
-        </ChakraProvider>
-      </ChakraBaseProvider>
+      <Suspense fallback={<div>Loading...</div>}>
+        {/* <PageTransition> */}
+        <ColorModeScript initialColorMode={theme.config.initialColorMode} />
+        <ChakraBaseProvider>
+          <ChakraProvider theme={theme}>
+            {/* <Provider store={store}> */}
+            <SessionProvider>
+              <Header />
+              <div className="w-full flex justify-center">
+                <div className="w-[82%]">{children}</div>
+              </div>
+              <Footer />
+            </SessionProvider>
+            {/* </Provider> */}
+          </ChakraProvider>
+        </ChakraBaseProvider>
+      </Suspense>
       {/* </PageTransition> */}
     </>
   );

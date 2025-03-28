@@ -17,7 +17,8 @@ const attrs = [
   { attributename: "Manufacturer", attributevalue: "Ridex" },
 ];
 
-export const Attributes = () => {
+export const Attributes = (props: { product: any }) => {
+  const { product } = props;
   const [showMore, setShowMore] = useState(false);
   const [branchShow, setBranchShow] = useState(false);
   const handleShowMore = () => {
@@ -28,15 +29,17 @@ export const Attributes = () => {
 
   const attributesToShow =
     // showMore ?
-    attrs;
+    product?.attributes;
   // : attributes.slice(0, 3);
 
   return (
     <VStack align="flex-start" w="36%">
-      <Text variant="subtitle2">1862O0009P</Text>
-      <Text variant="h7">RIDEX PLUS Engine Oil</Text>
+      <Text variant="subtitle2">{product?.articleid}</Text>
+      <Text variant="h7">
+        {product?.brandname} {product?.partname}
+      </Text>
       <VStack gap={2} w="full">
-        {attributesToShow.map((attribute: any, index: number) => {
+        {attributesToShow?.map((attribute: any, index: number) => {
           return (
             <VStack gap={2} w="full" key={index}>
               <HStack w="full" align="start">
@@ -65,29 +68,34 @@ export const Attributes = () => {
             </VStack>
           );
         })}
-        <Divider borderColor="#CFCFCF" />
-        <VStack
-          gap={2}
-          w="full"
-          //   display={data?.description ? "flex" : "none"}
-          maxH={showMore ? "1000px" : "100px"}
-          transition="max-height 0.5s ease-in-out"
-          overflow="hidden"
-          textOverflow="ellipsis"
-        >
-          <HStack w="full" align="start">
-            <Text fontSize={14} alignSelf="flex-start">
-              <Highlight
-                query="Дэлгэрэнгүй:"
-                styles={{ fontWeight: 600 }}
-              >{`Дэлгэрэнгүй: {data?.description} Description: 2.2 D (952AEM250, 952AEA250) (46335975, 55275156, 55284636), year of manufacture 08.2018 - ..., 2143 cc, 160 hp 2.2 D (952AEM250, 952AEA250) (46335975, 55275156, 55284636), year of manufacture 08.2018 - ..., 2143 cc, 160 hp 2.2 D (952AEM250, 952AEA250) (46335975, 55275156, 55284636), year of manufacture 08.2018 - ..., 2143 cc, 160 hp... Description: 2.2 D (952AEM250, 952AEA250) (46335975, 55275156, 55284636), year of manufacture 08.2018 - ..., 2143 cc, 160 hp 2.2 D `}</Highlight>
-            </Text>
-          </HStack>
-          <Divider borderColor="#CFCFCF" />
-        </VStack>
+        <Divider
+          borderColor="#CFCFCF"
+          display={product?.description ? "flex" : "none"}
+        />
+        {product?.description && (
+          <VStack
+            gap={2}
+            w="full"
+            //   display={data?.description ? "flex" : "none"}
+            maxH={showMore ? "1000px" : "100px"}
+            transition="max-height 0.5s ease-in-out"
+            overflow="hidden"
+            textOverflow="ellipsis"
+          >
+            <HStack w="full" align="start">
+              <Text fontSize={14} alignSelf="flex-start">
+                <Highlight
+                  query="Дэлгэрэнгүй:"
+                  styles={{ fontWeight: 600 }}
+                >{`Дэлгэрэнгүй: {data?.description} Description: 2.2 D (952AEM250, 952AEA250) (46335975, 55275156, 55284636), year of manufacture 08.2018 - ..., 2143 cc, 160 hp 2.2 D (952AEM250, 952AEA250) (46335975, 55275156, 55284636), year of manufacture 08.2018 - ..., 2143 cc, 160 hp 2.2 D (952AEM250, 952AEA250) (46335975, 55275156, 55284636), year of manufacture 08.2018 - ..., 2143 cc, 160 hp... Description: 2.2 D (952AEM250, 952AEA250) (46335975, 55275156, 55284636), year of manufacture 08.2018 - ..., 2143 cc, 160 hp 2.2 D `}</Highlight>
+              </Text>
+            </HStack>
+            <Divider borderColor="#CFCFCF" />
+          </VStack>
+        )}
 
         <Button
-          //   display={data?.description ? "flex" : "none"}
+          // display={product?.description ? "flex" : "none"}
           p="8px 14px"
           rightIcon={<IconChevronDown color="#1e1e1e" size={20} />}
           variant="ghost"

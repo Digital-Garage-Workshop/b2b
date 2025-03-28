@@ -15,15 +15,23 @@ import {
 import { IconArrowRight, IconSearch } from "@tabler/icons-react";
 import Link from "next/link";
 import { LoginModal } from "../login";
+import { useSession } from "next-auth/react";
 
 export const MainSearch = () => {
+  const { data: session } = useSession();
   const {
     onClose: loginOnClose,
     onOpen: loginOnOpen,
     isOpen: loginIsOpen,
   } = useDisclosure();
   return (
-    <VStack w="full" align={"center"} py={20} pos="relative" h={393}>
+    <VStack
+      w="full"
+      align={"center"}
+      py={20}
+      pos="relative"
+      h={session ? 329 : 393}
+    >
       <Stack backgroundImage={"/decoration.svg"} h={201} w={201} mt={-12} />
       <VStack gap={6} pos={"absolute"}>
         <Text fontSize={48} fontWeight={700}>
@@ -45,7 +53,7 @@ export const MainSearch = () => {
             placeholder="OE дугаар, Бүтээгдэхүүний нэрээр, Үйлдвэрлэгчээр хайх"
           />
         </InputGroup>
-        <HStack gap={4}>
+        <HStack gap={4} display={session ? "none" : "flex"}>
           <Link href="/sign-up">
             <Button rightIcon={<IconArrowRight />}>Бүртгүүлэх</Button>
           </Link>

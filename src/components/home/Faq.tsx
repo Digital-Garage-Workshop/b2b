@@ -1,11 +1,12 @@
 "use client";
+import { Faqs } from "@/_services";
+import { UseApi } from "@/hooks";
 import {
   grey200,
   grey500,
   grey600,
   grey700,
   primaryGradient,
-  textDefault,
 } from "@/theme/colors";
 import {
   Accordion,
@@ -20,7 +21,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const faq = [
   {
@@ -42,7 +43,20 @@ const faq = [
 ];
 
 export const Faq = () => {
-  const [selected, setSelected] = useState("General");
+  const [selected, setSelected] = useState("");
+  const [selectedId, setSelectedid] = useState(0);
+  const [{ data: faqs, isLoading: faqLoader }, getFaqs] = UseApi({
+    service: Faqs,
+  });
+
+  useEffect(() => {
+    getFaqs();
+  }, []);
+
+  useEffect(() => {
+    if (faqs) setSelected(faqs[0].title);
+  }, [faqs]);
+
   return (
     <VStack w="60%" gap={0} align="center" pos="relative">
       <Stack
@@ -63,28 +77,31 @@ export const Faq = () => {
       </VStack>
       <VStack gap={8} w="full" mt={"-68px"}>
         <HStack w="full" gap={0}>
-          {["General", "Billing", "Support", "Product"].map((item) => (
+          {faqs?.map((item: any, index: number) => (
             <Button
-              key={item}
+              key={index}
               flex={1}
               variant="ghost"
               p="8px 16px"
-              onClick={() => setSelected(item)}
+              onClick={() => {
+                setSelected(item.title);
+                setSelectedid(item.categoryid - 1);
+              }}
               borderRadius={0}
               color={grey500}
               borderBottom={`1px solid ${
-                selected === item ? grey500 : grey200
+                selected === item?.title ? grey500 : grey200
               }`}
             >
-              <Text variant={selected === item ? "subtitle3" : "body3"}>
-                {item}
+              <Text variant={selected === item?.title ? "subtitle3" : "body3"}>
+                {item?.title}
               </Text>
             </Button>
           ))}
         </HStack>
         <Accordion gap={4} allowMultiple w="full">
           <VStack gap={4}>
-            {faq.map((item, index) => (
+            {faqs?.[selectedId]?.faqs?.map((item: any, index: any) => (
               <AccordionItem
                 key={index}
                 w="full"
@@ -102,7 +119,7 @@ export const Faq = () => {
                   >
                     <Box as="span" textAlign="left" w="full" p={0}>
                       <Text variant={"title2"} color={grey700}>
-                        {item.name}
+                        {item.question}
                       </Text>
                     </Box>
                     <AccordionIcon />
@@ -110,7 +127,7 @@ export const Faq = () => {
                 </h2>
                 <AccordionPanel pl={-4} w="full" pb={-4}>
                   <Text variant="body3" color={grey600}>
-                    {item.desc}
+                    {item.answer}
                   </Text>
                 </AccordionPanel>
               </AccordionItem>

@@ -1,10 +1,9 @@
 "use client";
-import { grey100, grey200, grey600 } from "@/theme/colors";
+import { grey100 } from "@/theme/colors";
 import {
   Box,
   Button,
   Flex,
-  Grid,
   Image,
   Stack,
   StackProps,
@@ -12,8 +11,10 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { IconChevronDown } from "@tabler/icons-react";
-import { CategoryCard } from "../cards";
 import { motion } from "framer-motion";
+import { UseApi } from "@/hooks";
+import { Brands } from "@/_services";
+import { useEffect } from "react";
 
 type PartCategories = {} & StackProps;
 const data = [
@@ -79,7 +80,15 @@ const images = [
 ];
 export const PartBrands = (props: PartCategories) => {
   const { ...restProps } = props;
+  const [{ data: brands, isLoading: brandLoader }, getBrands] = UseApi({
+    service: Brands,
+  });
   const MotionFlex = motion.create(Flex);
+
+  useEffect(() => {
+    getBrands();
+  }, []);
+
   return (
     <VStack w="full" gap={4} align="center" {...restProps}>
       <Stack w={10} h="3px" bg="#F75B00" />

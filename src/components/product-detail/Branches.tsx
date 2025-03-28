@@ -10,25 +10,42 @@ import {
 } from "@chakra-ui/react";
 import { IconShoppingCart } from "@tabler/icons-react";
 import { AddCartModal } from "./AddCartModal";
+import { useSession } from "next-auth/react";
+import { LoginModal } from "../login";
+import { formatCurrency } from "@/utils";
 
-export const Branches = () => {
+export const Branches = (props: { product: any; branch: any }) => {
+  const { product, branch } = props;
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { data: session } = useSession();
+  const {
+    isOpen: loginIsOpen,
+    onClose: loginOnclose,
+    onOpen: loginOnOpen,
+  } = useDisclosure();
   return (
     <HStack w="full" pos="relative" justify="space-between">
-      <Text variant="overlineBold">FQ-10</Text>
+      <Text variant="overlineBold">{branch.organization}</Text>
       <HStack gap={1}>
-        {[1, 2, 3, 4, 5].map((item) => (
+        {[1, 2, 3, 4, 5].map((blocks) => (
           <Stack
-            key={item}
+            key={blocks}
             w={1}
             h={3}
             borderRadius={8}
-            bg={item < 4 ? success : grey200}
+            bg={
+              parseInt(branch.quantity) >
+              (parseInt(branch.quantity) / 5) * blocks
+                ? success
+                : grey200
+            }
           />
         ))}
       </HStack>
       <VStack gap={0} align="flex-start" pl={2}>
-        <Text variant="title2">115’000₮</Text>
+        <Text variant="title2">
+          {session ? formatCurrency(branch.price || 0) : "****"}
+        </Text>
         <Text fontSize={8} fontWeight={500} color={grey700}>
           НӨАТ багтсан үнэ
         </Text>
@@ -38,15 +55,26 @@ export const Branches = () => {
         p={"6px"}
         pos="relative"
         right={0}
+        disabled={parseInt(branch.quantity) > 0 ? false : true}
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          onOpen();
+          if (session) {
+            onOpen();
+          } else {
+            loginOnOpen();
+          }
         }}
       >
         <IconShoppingCart />
       </Button>
-      <AddCartModal isOpen={isOpen} onClose={onClose} />
+      <AddCartModal
+        isOpen={isOpen}
+        onClose={onClose}
+        product={product}
+        price={branch.price}
+      />
+      <LoginModal isOpen={loginIsOpen} onClose={loginOnclose} />
     </HStack>
   );
 };

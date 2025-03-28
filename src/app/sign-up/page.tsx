@@ -9,7 +9,7 @@ import { useState } from "react";
 export default function Page() {
   const [isCompany, setIsCompany] = useState(false);
   const searchParams = useSearchParams();
-  const tag = searchParams.get("tag") || null;
+  const tag = searchParams?.get("tag") || null;
   const router = useRouter();
 
   return (
@@ -20,7 +20,6 @@ export default function Page() {
         gap={8}
         alignSelf="center"
         justifySelf={"center"}
-        mt={"auto"}
       >
         <Text variant="h7">Get started with Garage B2B</Text>
         <Text variant="body2" mt={-6}>

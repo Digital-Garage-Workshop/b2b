@@ -41,13 +41,14 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials) return null;
+
         try {
           const userCredential = await serverAuthRepository.login(
             credentials.email,
             credentials.password
           );
           const expirationDate = Date.now() / 1000 + 3600 * 24 * 14;
-
+          console.log(userCredential,'credential');
           return {
             token: userCredential.data?.token,
             expiresAt: expirationDate,
@@ -71,13 +72,27 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         email: { label: "Email", type: "email", required: true },
         password: { label: "Password", type: "password", required: true },
+        companyRegNum:{label:'employeeName', type:'string', required:false},
+        companyLocation:{label:'employeeName', type:'string', required:false},  
+        employeeName:{label:'employeeName', type:'string', required:true},
+        employeePosition:{label:'employeeName', type:'string', required:true},  
+        phoneNumber:{label:'employeeName', type:'string', required:true},  
+        type:{label:'type', type:'string', required:true}, 
+        companyName:{label:'companyName', type:'string', required:false},   
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
         try {
           const userCredential = await serverAuthRepository.register(
             credentials?.email,
-            credentials?.password
+            credentials?.password,
+            credentials?.companyLocation,
+            credentials?.companyRegNum,
+            credentials?.employeeName,
+            credentials?.employeePosition,
+            credentials?.phoneNumber,
+            credentials?.type,
+            credentials?.companyName
           );
           // createUserWithEmailAndPassword(
           //   auth,

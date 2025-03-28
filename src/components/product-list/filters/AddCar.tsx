@@ -1,63 +1,31 @@
 "use client";
-import { grey500 } from "@/theme/colors";
-import {
-  Button,
-  HStack,
-  Image,
-  Input,
-  InputGroup,
-  InputLeftElement,
-  Text,
-  VStack,
-} from "@chakra-ui/react";
-import { IconMinus, IconPlus, IconSearch } from "@tabler/icons-react";
-import { useState } from "react";
+import { Button, HStack, Input, Text, VStack } from "@chakra-ui/react";
+import { IconMinus, IconPlus } from "@tabler/icons-react";
+import { useEffect, useState } from "react";
 import { Selection } from "./Selection";
 import { useFormik } from "formik";
-
-const model = [
-  {
-    manuid: 1,
-    name: "Toyota",
-    childrens: [
-      { modelid: 101, modelname: "Corolla", yearstart: 2000, yearend: 2023 },
-      { modelid: 102, modelname: "Camry", yearstart: 1995, yearend: 2022 },
-    ],
-  },
-  {
-    manuid: 2,
-    name: "Honda",
-    childrens: [
-      { modelid: 201, modelname: "Civic", yearstart: 1990, yearend: 2023 },
-      { modelid: 202, modelname: "Accord", yearstart: 1985, yearend: 2021 },
-    ],
-  },
-];
-
-const engine = [
-  {
-    carid: 1,
-    carname: "1.8L VVT-i",
-  },
-  {
-    carid: 2,
-    carname: "2.0L Turbo",
-  },
-  {
-    carid: 3,
-    carname: "3.5L V6 Hybrid",
-  },
-];
-
-const brand = [
-  { manuid: 1, name: "Toyota" },
-  { manuid: 2, name: "Honda" },
-  { manuid: 3, name: "Ford" },
-];
+import { UseApi } from "@/hooks";
+import { GetCarEngine, GetCarManu, GetCarModel } from "@/_services";
+import { useRouter } from "next/navigation";
+import { addCar } from "@/redux/slices/carSlice";
+import { useDispatch } from "react-redux";
 
 export const AddCar = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isPlate, setIsPlate] = useState(false);
+  const [carid, setCarid] = useState<null | string>(null);
+  const router = useRouter();
+  // const dispatch = useDispatch();
+
+  const [{ data: manu }, fetchManu] = UseApi({
+    service: GetCarManu,
+  });
+  const [{ data: model }, fetchModel] = UseApi({
+    service: GetCarModel,
+  });
+  const [{ data: engines }, fetchEngine] = UseApi({
+    service: GetCarEngine,
+  });
 
   const formik = useFormik({
     initialValues: {
@@ -68,28 +36,51 @@ export const AddCar = () => {
       selectedCar: "",
       selectedCarName: "",
       plate: "",
-      vin: "",
     },
     onSubmit: (values) => {
       if (isPlate) {
         if (values.plate) {
-        } else if (values.vin) {
+        } else if (values.selectedCar) {
+          // dispatch(
+          //   addCar({
+          //     carid: values.selectedCar,
+          //     manuName: values.selectedBrandName,
+          //     modelName: values.selectedModelName,
+          //     engine: values.selectedCarName,
+          //     plate: null,
+          //     vin: null,
+          //   })
+          // );
+          router.push(`?car=${values.selectedCar}`);
         }
       } else {
-        console.error("Invalid selection.");
+        if (values.selectedCar) {
+          router.push(`?car=${values.selectedCar}`);
+        }
       }
     },
   });
 
-  // Filter models based on the selected brand
-  const filteredModels =
-    formik.values.selectedBrand === ""
-      ? [] // No models if brand isn't selected
-      : model.filter((m) => m.manuid === Number(formik.values.selectedBrand));
+  useEffect(() => {
+    fetchManu();
+  }, []);
 
-  // Flatten models to extract children (actual models)
-  const modelOptions = filteredModels.flatMap((m) => m.childrens || []);
+  useEffect(() => {
+    if ((formik.values.selectedBrand, formik.values.selectedModel)) {
+      fetchEngine({
+        manuid: formik.values.selectedBrand,
+        modelid: formik.values.selectedModel,
+      });
+    } else if (formik.values.selectedBrand) {
+      fetchModel({ manuid: formik.values.selectedBrand });
+    }
+  }, [formik.values.selectedBrand, formik.values.selectedModel]);
 
+  useEffect(() => {
+    if (formik.values.selectedCar) {
+      setCarid(formik.values.selectedCar);
+    }
+  }, [formik.values.selectedCar]);
   return (
     <VStack
       p="8px 16px"
@@ -131,7 +122,7 @@ export const AddCar = () => {
         <VStack w="full" gap="10px">
           {/* Select Brand (Manufacturer) */}
           <Selection
-            data={brand}
+            data={manu}
             isDisabled={false}
             placeholder="Үйлдвэрлэгч"
             type="brand"
@@ -153,7 +144,7 @@ export const AddCar = () => {
 
           {/* Select Model (Filtered by Brand) */}
           <Selection
-            data={filteredModels} // Pass only the filtered models
+            data={model} // Pass only the filtered models
             isDisabled={formik.values.selectedBrand === ""}
             placeholder="Модел"
             selection={formik.values.selectedModel}
@@ -173,7 +164,7 @@ export const AddCar = () => {
 
           {/* Select Engine */}
           <Selection
-            data={engine}
+            data={engines}
             isDisabled={formik.values.selectedModel === ""}
             placeholder="Хөдөлгүүр"
             selection={formik.values.selectedCar}
@@ -189,7 +180,12 @@ export const AddCar = () => {
           />
         </VStack>
       )}
-      <Button w="full" leftIcon={<IconPlus />} mt={2}>
+      <Button
+        w="full"
+        leftIcon={<IconPlus />}
+        mt={2}
+        onClick={() => formik.handleSubmit()}
+      >
         Машин нэмэх
       </Button>
     </VStack>

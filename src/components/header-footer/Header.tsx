@@ -1,16 +1,26 @@
 "use client";
 import { ExelIcon, Logo } from "@/icons";
 import { grey50 } from "@/theme/colors";
-import { Button, HStack, Input, Stack, useDisclosure } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  HStack,
+  Input,
+  Stack,
+  useDisclosure,
+} from "@chakra-ui/react";
 import {
   IconArrowRight,
   IconMenu2,
   IconShoppingCart,
+  IconUser,
 } from "@tabler/icons-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import path from "path";
 import { LoginModal } from "../login";
+import { signOut, useSession } from "next-auth/react";
+import { CategoryDropDown } from "./CategoryDropDown";
 
 const data = [
   { name: "Амортизатор / Пүрш" },
@@ -19,12 +29,15 @@ const data = [
   { name: "Хямдарсан бараа" },
 ];
 export const Header = () => {
+  const pathname = usePathname();
+  const router = useRouter();
+  const { data: session } = useSession();
   const {
     onClose: loginOnClose,
     onOpen: loginOnOpen,
     isOpen: loginIsOpen,
   } = useDisclosure();
-  const pathname = usePathname();
+
   return (
     <Stack w="100%" gap={0} align="center">
       <HStack gap={6} py={4} justify="space-between" w="82%">
@@ -33,18 +46,22 @@ export const Header = () => {
         </Link>
         <HStack w="70%">
           <Input
-            w="76%"
+            w="100%"
             placeholder="OE дугаар, Бүтээгдэхүүний нэрээр, Үйлдвэрлэгчээр хайх"
           />
-          <Button variant="outline" leftIcon={<ExelIcon />} px={4}>
+        </HStack>
+        <HStack gap={2} ml={-4}>
+          <Button variant="outline" leftIcon={<ExelIcon />} px={4} mr={4}>
             Excel файлаар хайх
           </Button>
-        </HStack>
-        <HStack gap={2}>
-          <Button variant="outline" onClick={loginOnOpen}>
+          <Button
+            variant="outline"
+            onClick={loginOnOpen}
+            display={session ? "none" : "flex"}
+          >
             Нэвтрэх
           </Button>
-          <Link href="/sign-up">
+          <Link href="/sign-up" style={{ display: session ? "none" : "flex" }}>
             <Button
               rightIcon={<IconArrowRight />}
               size="md"
@@ -53,11 +70,29 @@ export const Header = () => {
               Бүртгүүлэх
             </Button>
           </Link>
-          <Link href="/cart">
-            <Button p={2}>
-              <IconShoppingCart />
+          <Link href="/profile" style={{ display: session ? "flex" : "none" }}>
+            <Button
+              p={2}
+              onClick={() => {
+                signOut({ redirect: true, callbackUrl: "/" });
+              }}
+            >
+              <IconUser />
             </Button>
           </Link>
+
+          <Button
+            p={2}
+            onClick={() => {
+              if (session) {
+                router.push("/cart");
+              } else {
+                loginOnOpen();
+              }
+            }}
+          >
+            <IconShoppingCart />
+          </Button>
         </HStack>
       </HStack>
       <HStack
@@ -68,16 +103,10 @@ export const Header = () => {
         display={pathname?.includes("sign-up") ? "none" : "flex"}
       >
         <HStack gap={{ base: 2, md: 6 }} w="82%">
-          {/* <Box>
-          <CategoryDropDown />
-        </Box> */}
-          <Button
-            variant="ghost"
-            size={"sm"}
-            leftIcon={<IconMenu2 size={20} />}
-          >
-            Ангилал
-          </Button>
+          <Box>
+            <CategoryDropDown />
+          </Box>
+
           <Stack w="1px" height="24px" border={"0.5px solid #D0D5DD"} />
           <HStack gap={2} w={"full"}>
             {

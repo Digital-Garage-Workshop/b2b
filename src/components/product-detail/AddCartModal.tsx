@@ -18,10 +18,12 @@ import { useState } from "react";
 type AddCartModal = {
   isOpen: boolean;
   onClose: () => void;
+  product: any;
+  price: any;
 };
 
 export const AddCartModal = (props: AddCartModal) => {
-  const { isOpen, onClose } = props;
+  const { isOpen, onClose, product, price } = props;
   const [total, setTotal] = useState();
   const [quantity, setQuantity] = useState(0);
   return (
@@ -29,9 +31,19 @@ export const AddCartModal = (props: AddCartModal) => {
       <ModalOverlay />
       <ModalContent maxW={488} p={6}>
         <VStack gap={8}>
-          <Text variant="h7">RIDEX PLUS Engine Oil</Text>
+          <Text variant="h7">
+            {product?.brandname} {product?.category}
+          </Text>
           <HStack gap={6} w="full">
-            <Image src="/home/ridex.svg" w={181} objectFit="contain" />
+            <Image
+              src={
+                product?.images?.imgurl800 ||
+                product?.images?.imgurl400 ||
+                "/home/ridex.svg"
+              }
+              w={181}
+              objectFit="contain"
+            />
             <VStack gap={4} align="flex-start" w={235}>
               <Text>Худалдан авах тоо:</Text>
               <HStack p={1} borderRadius={16} bg={grey100}>
@@ -82,7 +94,7 @@ export const AddCartModal = (props: AddCartModal) => {
                 ))}
               </HStack>
               <VStack gap={0} align="flex-start" mt={2}>
-                <Text variant="h5">{formatCurrency(115000)}</Text>
+                <Text variant="h5">{formatCurrency(price)}</Text>
                 <Text fontSize={12} fontWeight={500} color={grey700}>
                   НӨАТ багтсан үнэ
                 </Text>

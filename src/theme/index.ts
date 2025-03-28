@@ -15,8 +15,8 @@ const theme = extendTheme({
       },
       // Dark mode autofill styles
       ".chakra-ui-dark input:-webkit-autofill": {
-        WebkitBoxShadow: "0 0 0 1000px #1A202C inset !important",
-        WebkitTextFillColor: "white !important",
+         WebkitBoxShadow: "0 0 0 1000px #1A202C inset !important",
+         WebkitTextFillColor: "white !important",
       },
       /* Hide scrollbar for Chrome, Safari and Opera */
       // "::-webkit-scrollbar": {

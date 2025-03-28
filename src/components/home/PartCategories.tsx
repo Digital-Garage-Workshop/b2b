@@ -1,7 +1,9 @@
-import { grey600 } from "@/theme/colors";
+"use client";
+import { grey100, grey200, grey600 } from "@/theme/colors";
 import {
   Button,
   Grid,
+  Skeleton,
   Stack,
   StackProps,
   Text,
@@ -9,6 +11,9 @@ import {
 } from "@chakra-ui/react";
 import { IconChevronDown } from "@tabler/icons-react";
 import { CategoryCard } from "../cards";
+import { Category } from "@/_services";
+import { UseApi } from "@/hooks";
+import { useEffect } from "react";
 
 type PartCategories = {} & StackProps;
 const data = [
@@ -65,6 +70,15 @@ const data = [
 
 export const PartCategories = (props: PartCategories) => {
   const { ...restProps } = props;
+  const [{ data: categories, isLoading: categoryLoader }, getCategories] =
+    UseApi({
+      service: Category,
+    });
+
+  useEffect(() => {
+    getCategories();
+  }, []);
+
   return (
     <VStack w="full" gap={4} align="center" {...restProps}>
       <Stack w={10} h="3px" bg="#F75B00" />
@@ -73,20 +87,22 @@ export const PartCategories = (props: PartCategories) => {
         Бид дэлхийд тэргүүлэгч брэндүүдээс таны хэрэгцээ шаардлагад нийцсэн
         автомашины сэлбэг эд ангийг нийлүүлдэг.
       </Text>
-      <Grid
-        w="full"
-        mt={4}
-        templateColumns="repeat(6, 1fr)"
-        rowGap={4}
-        columnGap={2}
-      >
-        {data.splice(0, 12).map((item, index) => (
-          <CategoryCard
-            key={index}
-            name={item.name}
-            image={{ imgurl400: "/home/tires.svg" }}
-          />
-        ))}
+      <Grid w="full" mt={4} templateColumns="repeat(6, 1fr)" gap={6}>
+        {categoryLoader
+          ? Array(12)
+              .fill("")
+              .map((_, index: number) => (
+                <Skeleton
+                  key={index}
+                  bg={grey100}
+                  borderRadius={8}
+                  h={226}
+                  w="full"
+                />
+              ))
+          : categories?.map((item: any, index: number) => (
+              <CategoryCard key={index} item={item} />
+            ))}
       </Grid>
       <Button variant="outline" rightIcon={<IconChevronDown />} mt={4}>
         Катлогийн дэлгэрэнгүй

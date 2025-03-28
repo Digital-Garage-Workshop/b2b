@@ -66,7 +66,7 @@ export const decrypt = (
   }
 };
 
-export function UseApi({ service, params, useAuth }: UseApiProps) {
+export function UseApi<T = any>({ service, params, useAuth }: UseApiProps) {
   const [data, setData] = useState<any>(null);
   const [errData, setErrData] = useState<any>(null);
   const [error, setError] = useState<any>(null);

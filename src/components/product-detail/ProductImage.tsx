@@ -3,36 +3,45 @@ import { grey200 } from "@/theme/colors";
 import { HStack, Image, Stack, VStack } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 
-export const ProductImage = () => {
+export const ProductImage = (props: { images: any; brandlogo: any }) => {
+  const { images, brandlogo } = props;
   const [selectedImage, setSelected] = useState("");
 
   useEffect(() => {
-    setSelected("/home/ridex.svg");
-  }, []);
+    if (images) {
+      setSelected(images?.imgurl800 || images?.imgurl400);
+    }
+  }, [images]);
   return (
     <VStack w={"36%"} gap={4}>
-      <Stack
-        pos="relative"
-        border={`1px solid ${grey200}`}
-        borderRadius={32}
-        w="full"
-      >
-        <Image
-          src="/home/ridexlogo.svg"
-          width="78px"
-          height={"24px"}
-          objectFit="contain"
+      {brandlogo && (
+        <Stack
           pos="relative"
-          top="15px"
-          left="23px"
-        />
-        <Image
-          src={selectedImage || "/home/ridex.svg"}
-          width="full"
-          height={"404"}
-          objectFit="contain"
-        />
-      </Stack>
+          border={`1px solid ${grey200}`}
+          borderRadius={32}
+          w="full"
+        >
+          <Image
+            src={
+              brandlogo?.imgurl400 ||
+              brandlogo?.imgurl200 ||
+              "/home/ridexlogo.svg"
+            }
+            width="78px"
+            height={"24px"}
+            objectFit="contain"
+            pos="relative"
+            top="15px"
+            left="23px"
+          />
+          <Image
+            src={selectedImage || "/home/ridex.svg"}
+            width="full"
+            height={"404"}
+            objectFit="contain"
+          />
+        </Stack>
+      )}
       <HStack w={"full"} overflow="scroll">
         <HStack w="fit-content">
           {[

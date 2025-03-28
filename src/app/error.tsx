@@ -1,8 +1,7 @@
-"use client"; // Required for error boundaries
+"use client";
 
-import { Button, HStack, VStack } from "@chakra-ui/react";
+import { Button, VStack } from "@chakra-ui/react";
 import Link from "next/link";
-import { useEffect } from "react";
 
 export default function ErrorPage({
   error,
@@ -11,10 +10,6 @@ export default function ErrorPage({
   error: Error;
   reset: () => void;
 }) {
-  useEffect(() => {
-    console.error("Error caught:", error);
-  }, [error]);
-
   return (
     <div className="flex min-h-screen flex-col items-center justify-center text-center p-4 gap-4">
       <h1 className="text-4xl font-bold">500 - Something went wrong!</h1>
