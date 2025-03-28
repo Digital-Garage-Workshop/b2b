@@ -118,9 +118,6 @@ export const LoginForm = (props: LoginFormProps) => {
     },
   });
 
-  const isSubmitDisabled =
-    !formik.values.termsAccepted || !formik.values.privacyAccepted;
-
   const showForm = modal === "login" || modal === "forgotPass";
   const showPasswordField = modal === "login";
   const showForgotPasswordButton = modal === "login";
@@ -262,7 +259,6 @@ export const LoginForm = (props: LoginFormProps) => {
                 isLoading={isLoading}
                 width="full"
                 colorScheme="teal"
-                disabled={isSubmitDisabled}
               >
                 Нэвтрэх
               </Button>
