@@ -1,7 +1,6 @@
 "use client";
 import { FormControl, Select, Box } from "@chakra-ui/react";
 
-// Define interfaces for better type safety
 interface ModelChild {
   modelid: string | number;
   name: string;
@@ -56,7 +55,6 @@ export const Selection = (props: SelectionProps) => {
     let selectedName = "";
 
     if (type === "model") {
-      // Handle model data with groups
       const modelData = data as ModelGroup[];
 
       for (const group of modelData) {
@@ -71,7 +69,6 @@ export const Selection = (props: SelectionProps) => {
         if (selectedName) break;
       }
     } else if (type === "engine") {
-      // Handle engine data
       const engineData = data as EngineGroup[];
 
       for (const item of engineData) {
@@ -86,7 +83,6 @@ export const Selection = (props: SelectionProps) => {
         if (selectedName) break;
       }
     } else {
-      // Handle brand data
       const brandData = data as BrandItem[];
 
       for (const item of brandData) {
@@ -100,7 +96,6 @@ export const Selection = (props: SelectionProps) => {
     setSelected(selectedValue, selectedName);
   };
 
-  // Function to render grouped options for models
   const renderModelOptions = () => {
     const modelData = data as ModelGroup[];
 
@@ -119,7 +114,6 @@ export const Selection = (props: SelectionProps) => {
     ));
   };
 
-  // Function to render engine options
   const renderEngineOptions = () => {
     const engineData = data as any[];
 
@@ -134,7 +128,6 @@ export const Selection = (props: SelectionProps) => {
     ));
   };
 
-  // Function to render brand options
   const renderBrandOptions = () => {
     const brandData = data as BrandItem[];
 

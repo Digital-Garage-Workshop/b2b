@@ -21,28 +21,30 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { IconCopy, IconInfoCircle } from "@tabler/icons-react";
 import { formatCurrency } from "@/utils";
+import { useCustomToast } from "@/hooks";
 //   import { useDispatch } from "react-redux";
 //   import { CheckTransferByBank } from "@/services/createOrder/checkTransferByBank";
 
 export const BankInfoModal = (props: {
   isOpen: boolean;
   onClose: () => void;
+  data: any;
 }) => {
-  const { isOpen, onClose } = props;
+  const { isOpen, onClose, data } = props;
   // const paymentData = useAppSelector((state) => state.payment.paymentData);
   // const orderData = useAppSelector((state) => state.order.orderData);
   // const paymentid = useAppSelector((state) => state.payment.paymentid);
   // const router = useRouter();
-  // const showToast = useCustomToast();
+  const showToast = useCustomToast();
   // const dispatch = useDispatch();
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text).then(() => {
-      // showToast({
-      //   type: "success",
-      //   title: "Амжилттай хуулагдлаа!",
-      //   description: "",
-      // });
+      showToast({
+        type: "success",
+        title: "Амжилттай хуулагдлаа!",
+        description: "",
+      });
     });
   };
 
@@ -116,8 +118,7 @@ export const BankInfoModal = (props: {
             borderRadius={8}
           >
             <CapitronBank w="24" h="24" />
-            {/* <Text>{paymentData?.transfers?.bankname}</Text> */}
-            <Text>Хаан банк</Text>
+            <Text>{data?.bankname}</Text>
           </HStack>
 
           <VStack gap={4} w="full">
@@ -132,15 +133,9 @@ export const BankInfoModal = (props: {
                 border="1px solid #D0D5DD"
                 borderRadius={8}
               >
-                {/* <Text>{paymentData?.transfers?.accountnumber}</Text> */}
-                <Text>50 11 39 54 77</Text>
+                <Text>{data?.accountnumber}</Text>
                 <IconCopy
-                  onClick={() =>
-                    copyToClipboard(
-                      //   paymentData?.transfers?.accountnumber ||
-                      "3001038373"
-                    )
-                  }
+                  onClick={() => copyToClipboard(data?.accountnumber)}
                   cursor="pointer"
                 />
               </HStack>
@@ -156,9 +151,9 @@ export const BankInfoModal = (props: {
                 border="1px solid #D0D5DD"
                 borderRadius={8}
               >
-                <Text>Цахим Дижитал Гараж</Text>
+                <Text>{data?.accountname}</Text>
                 <IconCopy
-                  onClick={() => copyToClipboard("Цахим Дижитал Гараж")}
+                  onClick={() => copyToClipboard(data?.accountname)}
                   cursor="pointer"
                 />
               </HStack>
@@ -202,16 +197,9 @@ export const BankInfoModal = (props: {
                 border="1px solid #D0D5DD"
                 borderRadius={8}
               >
-                {/* <Text>{paymentData?.transfers?.description}</Text> */}
-                <Text>R918273817239</Text>
+                <Text>{data?.invoiceid}</Text>
                 <IconCopy
-                  onClick={() =>
-                    copyToClipboard(
-                      //   paymentData?.transfers?.description ||
-                      // `G${orderData?.orderid}`
-                      "dssfsdcs"
-                    )
-                  }
+                  onClick={() => copyToClipboard(data?.invoiceid)}
                   cursor="pointer"
                 />
               </HStack>
@@ -234,7 +222,7 @@ export const BankInfoModal = (props: {
             <Text color="#DC6803" maxW={{ base: "300px", md: "370px" }}>
               {`  Төлбөр төлөгдсөний дараа таны захиалга идэвхэждэг болохыг
                 анхаараарай! Төлбөрийг дээрх дансанд шилжүүлэх ба
-                захиалгын {paymentData?.transfers?.description} дугаарыг гүйлгээний утга дээр бичнэ үү.`}
+                захиалгын ${data?.invoiceid} дугаарыг гүйлгээний утга дээр бичнэ үү.`}
             </Text>
           </HStack>
         </VStack>

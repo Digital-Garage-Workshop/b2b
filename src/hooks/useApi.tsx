@@ -33,6 +33,8 @@ export const buildConfig = async ({
   myConfig,
   token,
 }: ConfigProps): Promise<AxiosRequestConfig> => {
+  console.log(token);
+
   return {
     ...myConfig,
     headers: {
@@ -145,7 +147,7 @@ export function UseApi<T = any>({ service, params, useAuth }: UseApiProps) {
         );
       }
       if (err?.response?.status === 401) {
-        // signOut({ redirect: false });
+        signOut({ redirect: true, callbackUrl: "/" });
         // localStorage.clear();
         toast({
           type: "warning",

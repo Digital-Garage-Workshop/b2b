@@ -1,4 +1,6 @@
 "use client";
+import { GetPriceFilter } from "@/_services";
+import { UseApi } from "@/hooks";
 import { grey100, grey300, primary } from "@/theme/colors";
 import {
   HStack,
@@ -12,15 +14,100 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { IconMinus, IconPlus } from "@tabler/icons-react";
-import { useState } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export const PriceFilter = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000]);
+  const [sliderValue, setSliderValue] = useState<[number, number]>([0, 100000]);
+  const searchParams = useSearchParams();
+  const params = useParams();
+  const router = useRouter();
+  const categoryid = params?.categoryid as string;
+  const carid = searchParams?.get("car") || null;
+  const brandno = searchParams?.get("brand") || null;
+  const currentSubCategory = searchParams?.get("sub");
 
-  const handleChange = (values: [number, number]) => {
-    setPriceRange(values);
+  const [{ data: prices, isLoading: priceLoader }, getPrices] = UseApi({
+    service: GetPriceFilter,
+  });
+
+  const handleSliderChange = (values: [number, number]) => {
+    setSliderValue(values);
   };
+
+  const handleChangeComplete = (values: [number, number]) => {
+    setPriceRange(values);
+    updateURLWithPriceRange(values);
+  };
+
+  const updateURLWithPriceRange = (values: [number, number]) => {
+    const params = new URLSearchParams(window.location.search);
+    params.set("minPrice", values[0].toString());
+    params.set("maxPrice", values[1].toString());
+    router.push(`${window.location.pathname}?${params.toString()}`);
+  };
+
+  const handleOpen = async () => {
+    setIsExpanded((prev) => !prev);
+    if (isExpanded) {
+      const searchParams = new URLSearchParams(window.location.search);
+      searchParams.delete("minPrice");
+      searchParams.delete("maxPrice");
+
+      const newQueryString = searchParams.toString();
+
+      if (newQueryString) {
+        router.push(`?${newQueryString}`);
+      } else {
+        router.push(window.location.pathname);
+      }
+    } else {
+      await getPrices({
+        carid: carid,
+        categoryid: currentSubCategory || categoryid,
+      });
+    }
+  };
+
+  const handleMinInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newMin = +e.target.value;
+    const newRange: [number, number] = [newMin, priceRange[1]];
+    setSliderValue(newRange);
+  };
+
+  const handleMaxInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newMax = +e.target.value;
+    const newRange: [number, number] = [priceRange[0], newMax];
+    setSliderValue(newRange);
+  };
+
+  const handleInputBlur = () => {
+    setPriceRange(sliderValue);
+    updateURLWithPriceRange(sliderValue);
+  };
+
+  useEffect(() => {
+    const minPrice = searchParams?.get("minPrice");
+    const maxPrice = searchParams?.get("maxPrice");
+
+    if (minPrice && maxPrice && prices) {
+      const min = Math.max(parseInt(minPrice), prices?.minprice || 0);
+      const max = Math.min(parseInt(maxPrice), prices?.maxprice || 100000);
+      setPriceRange([min, max]);
+      setSliderValue([min, max]);
+    }
+  }, [searchParams, prices]);
+
+  useEffect(() => {
+    if (prices) {
+      const newRange: [number, number] = [prices?.minprice, prices?.maxprice];
+      setPriceRange(newRange);
+      setSliderValue(newRange);
+    }
+  }, [prices]);
+
   return (
     <VStack
       p="8px 16px"
@@ -36,18 +123,19 @@ export const PriceFilter = () => {
         w="full"
         justify="space-between"
         cursor="pointer"
-        onClick={() => setIsExpanded((prev) => !prev)}
+        onClick={handleOpen}
       >
         <Text variant="subtitle3">Үнэ</Text>
         {isExpanded ? <IconMinus size={16} /> : <IconPlus size={16} />}
       </HStack>
       <RangeSlider
         aria-label={["min", "max"]}
-        min={0}
-        max={500000}
+        min={prices?.minprice || 0}
+        max={prices?.maxprice || 100000}
         step={1000}
-        value={priceRange}
-        onChange={handleChange}
+        value={sliderValue}
+        onChange={handleSliderChange}
+        onChangeEnd={handleChangeComplete}
         colorScheme={primary}
       >
         <RangeSliderTrack bg={grey100} height={"6px"}>
@@ -69,15 +157,12 @@ export const PriceFilter = () => {
 
       <HStack mt={2} spacing={2} w="full">
         <Input
-          value={priceRange[0]}
-          onChange={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            setPriceRange([+e.target.value, priceRange[1]]);
-          }}
+          value={sliderValue[0]}
+          onChange={handleMinInputChange}
+          onBlur={handleInputBlur}
           type="number"
-          min={0}
-          max={priceRange[1]}
+          min={prices?.minprice || 0}
+          max={sliderValue[1]}
           border="1px solid #E2E8F0"
           borderRadius={8}
           w="50%"
@@ -88,15 +173,12 @@ export const PriceFilter = () => {
         />
         <Stack w={4} h="1px" bg={grey300} />
         <Input
-          value={priceRange[1]}
-          onChange={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            setPriceRange([priceRange[0], +e.target.value]);
-          }}
+          value={sliderValue[1]}
+          onChange={handleMaxInputChange}
+          onBlur={handleInputBlur}
           type="number"
-          min={priceRange[0]}
-          max={500000}
+          min={sliderValue[0]}
+          max={prices?.maxprice || 500000}
           border="1px solid #E2E8F0"
           borderRadius="md"
           p={2}

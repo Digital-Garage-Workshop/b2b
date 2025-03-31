@@ -1,21 +1,43 @@
 "use client";
-import { Button, HStack, Input, Text, VStack } from "@chakra-ui/react";
+import {
+  Button,
+  HStack,
+  Input,
+  Text,
+  useDisclosure,
+  VStack,
+} from "@chakra-ui/react";
 import { IconMinus, IconPlus } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { Selection } from "./Selection";
 import { useFormik } from "formik";
-import { UseApi } from "@/hooks";
-import { GetCarEngine, GetCarManu, GetCarModel } from "@/_services";
+import { UseApi, useCustomToast } from "@/hooks";
+import {
+  GetCarByPlate,
+  GetCarEngine,
+  GetCarManu,
+  GetCarModel,
+} from "@/_services";
 import { useRouter } from "next/navigation";
 import { addCar } from "@/redux/slices/carSlice";
 import { useDispatch } from "react-redux";
+import { CarModal } from "./CarModal";
 
 export const AddCar = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isPlate, setIsPlate] = useState(false);
   const [carid, setCarid] = useState<null | string>(null);
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const router = useRouter();
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
+  const toast = useCustomToast();
+
+  const [
+    { data: plateData, isLoading: plateLoader, error: plateError },
+    fetchPlate,
+  ] = UseApi({
+    service: GetCarByPlate,
+  });
 
   const [{ data: manu }, fetchManu] = UseApi({
     service: GetCarManu,
@@ -40,22 +62,31 @@ export const AddCar = () => {
     onSubmit: (values) => {
       if (isPlate) {
         if (values.plate) {
-        } else if (values.selectedCar) {
-          // dispatch(
-          //   addCar({
-          //     carid: values.selectedCar,
-          //     manuName: values.selectedBrandName,
-          //     modelName: values.selectedModelName,
-          //     engine: values.selectedCarName,
-          //     plate: null,
-          //     vin: null,
-          //   })
-          // );
-          router.push(`?car=${values.selectedCar}`);
+          fetchPlate({ platenumber: values.plate });
+        } else {
+          toast({
+            type: "warning",
+            title: "Уучлаарай",
+            description: "Та улсын дугаараа оруулна уу",
+          });
         }
       } else {
         if (values.selectedCar) {
-          router.push(`?car=${values.selectedCar}`);
+          dispatch(
+            addCar({
+              carid: values.selectedCar,
+              manuName: values.selectedBrandName,
+              modelName: values.selectedModelName,
+              engine: values.selectedCarName,
+              plate: null,
+              vin: null,
+            })
+          );
+          const searchParams = new URLSearchParams(window.location.search);
+
+          searchParams.set("car", values.selectedCar);
+
+          router.push(`?${searchParams.toString()}`);
         }
       }
     },
@@ -81,6 +112,10 @@ export const AddCar = () => {
       setCarid(formik.values.selectedCar);
     }
   }, [formik.values.selectedCar]);
+
+  useEffect(() => {
+    if (plateData) onOpen();
+  }, [plateData]);
   return (
     <VStack
       p="8px 16px"
@@ -103,12 +138,14 @@ export const AddCar = () => {
       </HStack>
       <HStack w="full" pb={2}>
         <Button
+          flex={1}
           variant={isPlate ? "navy" : "ghost"}
           onClick={() => setIsPlate(true)}
         >
           Улсын дугаар
         </Button>
         <Button
+          flex={1}
           variant={isPlate ? "ghost" : "navy"}
           onClick={() => setIsPlate(false)}
         >
@@ -117,7 +154,13 @@ export const AddCar = () => {
       </HStack>
 
       {isPlate ? (
-        <Input placeholder="0000 ААА" />
+        <Input
+          placeholder="0000 ААА"
+          value={formik.values.plate}
+          name="plate"
+          onChange={formik.handleChange}
+          maxLength={7}
+        />
       ) : (
         <VStack w="full" gap="10px">
           {/* Select Brand (Manufacturer) */}
@@ -185,9 +228,16 @@ export const AddCar = () => {
         leftIcon={<IconPlus />}
         mt={2}
         onClick={() => formik.handleSubmit()}
+        isLoading={plateLoader}
       >
         Машин нэмэх
       </Button>
+      <CarModal
+        data={plateData}
+        isOpen={isOpen}
+        onClose={onClose}
+        plate={formik.values.plate}
+      />
     </VStack>
   );
 };

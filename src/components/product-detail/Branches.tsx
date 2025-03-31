@@ -73,6 +73,7 @@ export const Branches = (props: { product: any; branch: any }) => {
         onClose={onClose}
         product={product}
         price={branch.price}
+        inventory={branch}
       />
       <LoginModal isOpen={loginIsOpen} onClose={loginOnclose} />
     </HStack>

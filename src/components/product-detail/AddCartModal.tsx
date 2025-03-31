@@ -1,4 +1,6 @@
 "use client";
+import { AddToCart } from "@/_services/user";
+import { UseApi, useCustomToast } from "@/hooks";
 import { grey100, grey700, primary } from "@/theme/colors";
 import { formatCurrency } from "@/utils";
 import {
@@ -14,24 +16,60 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { IconMinus, IconPlus, IconShoppingCart } from "@tabler/icons-react";
-import { useState } from "react";
+import { title } from "process";
+import { useEffect, useState } from "react";
 type AddCartModal = {
   isOpen: boolean;
   onClose: () => void;
   product: any;
   price: any;
+  inventory: any;
 };
 
 export const AddCartModal = (props: AddCartModal) => {
-  const { isOpen, onClose, product, price } = props;
+  const { isOpen, onClose, product, price, inventory } = props;
   const [total, setTotal] = useState();
-  const [quantity, setQuantity] = useState(0);
+  const [quantity, setQuantity] = useState(2);
+  const toast = useCustomToast();
+  const [{ data, isLoading, error, errData, successMessage }, addToCart] =
+    UseApi({
+      service: AddToCart,
+      useAuth: true,
+    });
+
+  const handleAddToCart = () => {
+    if (quantity < 2)
+      return toast({
+        type: "error",
+        title: "Уучлаарай",
+        description: "Та 2-с дээш сэлбэг сагслана уу",
+      });
+    addToCart({ partid: inventory?.partid, quantity: quantity });
+  };
+
+  useEffect(() => {
+    if (error) {
+      toast({
+        type: "error",
+        title: "Уучлаарай",
+        description: errData || "",
+      });
+    } else if (successMessage) {
+      toast({
+        type: "success",
+        title: "Амжилттай.",
+        description: successMessage || "",
+      });
+      onClose();
+    }
+  }, [error, successMessage]);
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
       <ModalContent maxW={488} p={6}>
         <VStack gap={8}>
-          <Text variant="h7">
+          <Text variant="h7" textAlign="center" maxW={380}>
             {product?.brandname} {product?.category}
           </Text>
           <HStack gap={6} w="full">
@@ -53,7 +91,7 @@ export const AddCartModal = (props: AddCartModal) => {
                   bg="white"
                   cursor="pointer"
                   onClick={() => {
-                    if (quantity > 0) setQuantity((prev) => prev - 1);
+                    if (quantity > 2) setQuantity((prev) => prev - 1);
                   }}
                 >
                   <IconMinus color={primary} size={13} />
@@ -100,7 +138,12 @@ export const AddCartModal = (props: AddCartModal) => {
                 </Text>
               </VStack>
               <HStack w="full">
-                <Button variant="outline" leftIcon={<IconShoppingCart />}>
+                <Button
+                  variant="outline"
+                  leftIcon={<IconShoppingCart />}
+                  isLoading={isLoading}
+                  onClick={handleAddToCart}
+                >
                   Сагслах
                 </Button>
                 <Button>Худалдан авах</Button>

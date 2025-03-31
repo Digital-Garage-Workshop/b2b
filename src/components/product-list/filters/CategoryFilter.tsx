@@ -16,6 +16,7 @@ import { UseApi } from "@/hooks/useApi";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Category, GetSubCategories } from "@/_services";
 import { IconX } from "@tabler/icons-react";
+import { grey100, grey50 } from "@/theme/colors";
 
 export const CategoryFilter: React.FC = () => {
   const router = useRouter();
@@ -45,8 +46,6 @@ export const CategoryFilter: React.FC = () => {
     string | null
   >(currentSubCategory || null);
 
-  // We don't need the expandedCategories state anymore as we're using selectedMainCategoryId
-
   useEffect(() => {
     fetchCategories();
   }, []);
@@ -60,27 +59,25 @@ export const CategoryFilter: React.FC = () => {
   }, [selectedMainCategoryId]);
 
   const handleMainCategoryChange = (categoryId: string) => {
-    // If clicking the same category, we'll let the Accordion component handle toggling
-    // via the onChange handler
     if (selectedMainCategoryId !== categoryId) {
-      // Select new main category
       setSelectedMainCategoryId(categoryId);
       setSelectedSubCategoryId(null);
     }
   };
 
-  const handleSubCategoryClick = (subCategoryId: string) => {
-    // Create new search params
+  const handleSubCategoryClick = (subCategoryId: string, name: string) => {
     const current = new URLSearchParams(
       Array.from(searchParams?.entries() || [])
     );
     current.set("sub", subCategoryId);
+    current.set("part", name);
+    current.delete("brand");
+    current.delete("maxPrice");
+    current.delete("minPrice");
 
-    // Convert to string
     const search = current.toString();
     const query = search ? `?${search}` : "";
 
-    // Navigate with new search params
     router.push(`${selectedMainCategoryId}${query}`);
 
     setSelectedSubCategoryId(subCategoryId);
@@ -88,10 +85,32 @@ export const CategoryFilter: React.FC = () => {
 
   if (categoriesLoading) {
     return (
-      <VStack gap={4} w="full">
-        <Skeleton height="40px" width="100%" />
-        <Skeleton height="40px" width="100%" />
-        <Skeleton height="40px" width="100%" />
+      <VStack
+        gap={4}
+        w="full"
+        h={400}
+        borderRadius={"8px"}
+        align="flex-start"
+        bg="white"
+      >
+        <Skeleton
+          height="40px"
+          width="100%"
+          startColor={grey50}
+          endColor={grey100}
+        />
+        <Skeleton
+          height="40px"
+          width="100%"
+          startColor={grey50}
+          endColor={grey100}
+        />
+        <Skeleton
+          height="40px"
+          width="100%"
+          startColor={grey50}
+          endColor={grey100}
+        />
       </VStack>
     );
   }
@@ -126,12 +145,9 @@ export const CategoryFilter: React.FC = () => {
             (cat: any) => cat.categoryid?.toString() === selectedMainCategoryId
           )}
           onChange={(expandedIndex) => {
-            // If no accordion is expanded
             if (expandedIndex === -1) {
               setSelectedMainCategoryId(null);
-            }
-            // If an accordion is expanded
-            else if (typeof expandedIndex === "number") {
+            } else if (typeof expandedIndex === "number") {
               const categoryId =
                 categoriesData[expandedIndex]?.categoryid?.toString();
               setSelectedMainCategoryId(categoryId);
@@ -172,7 +188,13 @@ export const CategoryFilter: React.FC = () => {
                     {subCategoriesLoading ? (
                       <VStack w="full">
                         {[...Array(3)].map((_, index) => (
-                          <Skeleton key={index} height="30px" width="100%" />
+                          <Skeleton
+                            key={index}
+                            height="30px"
+                            width="100%"
+                            startColor={grey50}
+                            endColor={grey100}
+                          />
                         ))}
                       </VStack>
                     ) : subCategoriesData && subCategoriesData.length > 0 ? (
@@ -182,7 +204,8 @@ export const CategoryFilter: React.FC = () => {
                             key={subCategory.categoryid}
                             onClick={() =>
                               handleSubCategoryClick(
-                                subCategory.categoryid!.toString()
+                                subCategory.categoryid!.toString(),
+                                subCategory.name.toString()
                               )
                             }
                             bg={
@@ -216,7 +239,7 @@ export const CategoryFilter: React.FC = () => {
                                 size={16}
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  router.push(`?sub= `);
+                                  router.push(`?part=${mainCategory?.name} `);
 
                                   setSelectedMainCategoryId(null);
                                   setSelectedSubCategoryId(null);

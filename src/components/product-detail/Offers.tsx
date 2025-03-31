@@ -77,6 +77,7 @@ export const Offers = (props: { inventories: any; product: any }) => {
           Нэвтрэх
         </Button>
         <Text
+          display={session ? "none" : "flex"}
           pos="absolute"
           top="35%"
           textAlign="center"

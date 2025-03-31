@@ -31,7 +31,10 @@ export const PartCard = (props: PartCard) => {
     onOpen: loginOnOpen,
   } = useDisclosure();
   return (
-    <Link href={`/product-detail/${item.articleid}`} style={{ width: "100%" }}>
+    <Link
+      href={`/product-detail/${item.articleid}?part=${item?.brandname}${item.category}`}
+      style={{ width: "100%" }}
+    >
       <VStack
         p={4}
         gap={4}
@@ -49,6 +52,7 @@ export const PartCard = (props: PartCard) => {
                 item.brandlogo?.imgurl200 ||
                 "/home/ridexlogo.svg"
               }
+              alt={`${item.brandname} ${item.category}`}
               width="52px"
               objectFit="contain"
               borderRadius="1px solid black"
@@ -61,6 +65,7 @@ export const PartCard = (props: PartCard) => {
             item.images?.imgurl400 ||
             "/home/ridex.svg"
           }
+          alt={`${item.brandname} ${item.category}`}
           height={136}
           w={136}
         />
@@ -86,11 +91,13 @@ export const PartCard = (props: PartCard) => {
           >
             Урд тэнхлэгийн тос, Урд тэнхлэгийн тос,йн тосnknlnjknjkm nj kb kn
           </Text>
-          <Text variant="body3">
-            <Highlight query="5300" styles={{ fontWeight: 700 }}>
-              Нийт 5300 машинд тохирно
-            </Highlight>
-          </Text>
+          <HStack gap={1}>
+            <Text variant="body3">Нийт </Text>
+            <Text variant="body3" fontWeight={700}>
+              {item?.carquantity}
+            </Text>
+            <Text variant="body3">машинд тохирно</Text>
+          </HStack>
 
           {item?.warranty && (
             <Text variant="body3">
@@ -103,7 +110,12 @@ export const PartCard = (props: PartCard) => {
             </Text>
           )}
         </VStack>
-        <VStack gap="10px" w="full" filter={session ? "none" : "blur(5px)"}>
+        <VStack
+          gap="10px"
+          w="full"
+          filter={session ? "none" : "blur(5px)"}
+          minH={142}
+        >
           <HStack w="full" gap={0}>
             <Text w={"22%"} variant="caption" textAlign={"start"}>
               ID:
@@ -118,7 +130,7 @@ export const PartCard = (props: PartCard) => {
           {item.inventories?.slice(0, 2).map((branches: any, index: number) => (
             <div className="w-full flex flex-col gap-[10px]" key={index}>
               <Branches product={item} branch={branches} />
-              {index < 1 && (
+              {item.inventories?.length > 1 && index < 1 && (
                 <HStack w="full" overflow={"hidden"} gap={1}>
                   {/* <HStack gap={1} > */}
                   {Array(24)

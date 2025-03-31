@@ -25,12 +25,21 @@ const carsSlice = createSlice({
   initialState,
   reducers: {
     addCar: (state, action: PayloadAction<Omit<Car, 'id'>>) => {
-      const newId = Date.now().toString(); 
-      state.cars.push({
-        id: newId,
-        ...action.payload
-      });
-      state.selectedCarId = newId;
+      const carExists = state.cars.some(car => car.carid === action.payload.carid);
+      
+      if (!carExists) {
+        const newId = Date.now().toString(); 
+        state.cars.push({
+          id: newId,
+          ...action.payload
+        });
+        state.selectedCarId = newId;
+      } else {
+        const existingCar = state.cars.find(car => car.carid === action.payload.carid);
+        if (existingCar) {
+          state.selectedCarId = existingCar.id;
+        }
+      }
     },
     
     updateCar: (state, action: PayloadAction<Car>) => {
@@ -41,14 +50,18 @@ const carsSlice = createSlice({
     },
     
     removeCar: (state, action: PayloadAction<string>) => {
-      state.cars = state.cars.filter(car => car.id !== action.payload);
-
-      if (state.selectedCarId === action.payload) {
-        state.selectedCarId = state.cars.length > 0 ? state.cars[0].id : null;
-      }
+      const isRemovingSelected = state.selectedCarId === action.payload;
+     
+      
+      
+      state.cars = state.cars.filter(car =>  car.carid !== action.payload);
+      
+      // if (isRemovingSelected) {
+      //   state.selectedCarId = state.cars.length > 0 ? state.cars[0].id : null;
+      // }
     },
     
-    selectCar: (state, action: PayloadAction<string>) => {
+    selectCar: (state, action: PayloadAction<string | null>) => {
       state.selectedCarId = action.payload;
     },
     

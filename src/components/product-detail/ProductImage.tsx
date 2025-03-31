@@ -9,7 +9,7 @@ export const ProductImage = (props: { images: any; brandlogo: any }) => {
 
   useEffect(() => {
     if (images) {
-      setSelected(images?.imgurl800 || images?.imgurl400);
+      setSelected(images?.[0]?.imgurl800 || images?.[0]?.imgurl400);
     }
   }, [images]);
   return (
@@ -44,25 +44,20 @@ export const ProductImage = (props: { images: any; brandlogo: any }) => {
       )}
       <HStack w={"full"} overflow="scroll">
         <HStack w="fit-content">
-          {[
-            "/home/groupridex.svg",
-            "/home/sideridex.svg",
-            "/home/backridex.svg",
-            "/home/closeupridex.svg",
-            "/home/ridex.svg",
-            "/home/sideridex.svg",
-          ].map((item, index) => (
-            <Image
-              key={index}
-              src={item}
-              width={20}
-              height={20}
-              objectFit="contain"
-              borderRadius={8}
-              border={`1px solid ${grey200}`}
-              onClick={() => setSelected(item)}
-            />
-          ))}
+          {images?.map(
+            (item: { imgurl400: string; imgurl800: string }, index: number) => (
+              <Image
+                key={index}
+                src={item.imgurl800 || item.imgurl400}
+                width={20}
+                height={20}
+                objectFit="contain"
+                borderRadius={8}
+                border={`1px solid ${grey200}`}
+                onClick={() => setSelected(item.imgurl800 || item.imgurl400)}
+              />
+            )
+          )}
         </HStack>
       </HStack>
     </VStack>

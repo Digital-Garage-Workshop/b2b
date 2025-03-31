@@ -8,12 +8,16 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { IconArrowRight } from "@tabler/icons-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 // import Image from "next/image";
 
 import { CapitronBank, QpayIcon } from "@/icons";
 import { grey200 } from "@/theme/colors";
 import { StorePayModal } from "./StorePay";
+import { GetPaymentMethod } from "@/_services/user";
+import { UseApi } from "@/hooks";
+import { useEffect } from "react";
+import { BankInfoModal } from "./BankModal";
 // import { StorePayModal } from "./StorePayModal";
 // import { useAppSelector } from "@/hooks/hooks";
 // import { PockeyZeroModal } from "./PocketZeroModal";
@@ -34,6 +38,8 @@ import { StorePayModal } from "./StorePay";
 
 export const PaymentPay = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const orderid = searchParams?.get("order");
   //   const dispatch = useDispatch();
 
   //   const {
@@ -51,15 +57,23 @@ export const PaymentPay = () => {
   //     onClose: qpayOnClose,
   //     onOpen: qpayOnOpen,
   //   } = useDisclosure();
-  //   const {
-  //     isOpen: bankIsOpen,
-  //     onClose: bankOnClose,
-  //     onOpen: bankOnOpen,
-  //   } = useDisclosure();
+  const {
+    isOpen: bankIsOpen,
+    onClose: bankOnClose,
+    onOpen: bankOnOpen,
+  } = useDisclosure();
   //   const paymentData = useAppSelector((state) => state.payment.paymentData);
   //   const paymentid = useAppSelector((state) => state.payment.paymentid);
   //   const orderData = useAppSelector((state) => state.order.orderData);
+  const [
+    { data: methods, isLoading: methodLoader, error: methoderror },
+    fetchMethod,
+  ] = UseApi({
+    service: GetPaymentMethod,
+    useAuth: true,
+  });
   //   const [{ data, isLoading, error }, fetch] = UseApi({
+
   //     service: CheckPayment,
   //     useAuth: true,
   //   });
@@ -164,6 +178,10 @@ export const PaymentPay = () => {
   //     }
   //   }, [pocketSuccess]);
 
+  useEffect(() => {
+    fetchMethod({ purchaseid: orderid });
+  }, []);
+
   return (
     <VStack
       w="45%"
@@ -206,31 +224,34 @@ export const PaymentPay = () => {
           bg="#F9FAFB"
           w="full"
           justify="space-between"
-          //   onClick={() => {
-          //     bankOnOpen();
-          //     dispatch(setPaymentid(paymentData?.transfers?.paymentid || 3));
-          //   }}
+          onClick={() => {
+            bankOnOpen();
+          }}
         >
-          <HStack gap={2} onClick={storepayOnOpen}>
+          <HStack gap={2}>
             <CapitronBank />
             <Text fontSize={16} fontWeight={700}>
               Дансаар шилжүүлэх
             </Text>
           </HStack>
           <IconArrowRight color="#1E1E1E" size={24} />
-          {/* <BankInfoModal isOpen={bankIsOpen} onClose={bankOnClose} /> */}
+          <BankInfoModal
+            isOpen={bankIsOpen}
+            onClose={bankOnClose}
+            data={methods?.transfer}
+          />
         </HStack>
-        <HStack
+        {/* <HStack
           p="8px 16px"
           borderRadius={8}
           border="1px solid #F2F4F7"
           bg="#F9FAFB"
           w="full"
           justify="space-between"
-          //   onClick={() => {
-          //     qpayOnOpen();
-          //     dispatch(setPaymentid(paymentData?.applications?.paymentid || 4));
-          //   }}
+            onClick={() => {
+              qpayOnOpen();
+              dispatch(setPaymentid(paymentData?.applications?.paymentid || 4));
+            }}
         >
           <HStack gap={2}>
             <QpayIcon />
@@ -239,11 +260,11 @@ export const PaymentPay = () => {
             </Text>
           </HStack>
           <IconArrowRight color="#1E1E1E" size={24} />
-          {/* <QpayModal isOpen={qpayIsOpen} onClose={qpayOnClose} /> */}
-        </HStack>
+          <QpayModal isOpen={qpayIsOpen} onClose={qpayOnClose} />
+        </HStack> */}
       </VStack>
-      {/* {paymentData?.splits !== null ? (
-        paymentData?.splits?.length || 0 > 0 ? (
+      {methods?.splits !== null ? (
+        methods?.splits?.length || 0 > 0 ? (
           <VStack gap={6} w="full">
             <HStack gap={4} w="full">
               <Divider w="full" />
@@ -253,8 +274,8 @@ export const PaymentPay = () => {
               <Divider />
             </HStack>
             <VStack gap={4} w="full">
-              {paymentData?.splits?.map(
-                (e: Split, index: Key | null | undefined) => (
+              {methods?.splits?.map(
+                (e: any, index: number | null | undefined) => (
                   <HStack
                     key={index}
                     p="8px 16px"
@@ -263,19 +284,19 @@ export const PaymentPay = () => {
                     bg="#F9FAFB"
                     w="full"
                     justify="space-between"
-                    onClick={() => {
-                      if (e.name == "STORE PAY") {
-                        storepayOnOpen();
-                      } else {
-                        getPocketQr({
-                          orderid: paymentData?.orderid,
-                        });
-                        PocketOnOpen();
-                      }
-                    }}
+                    // onClick={() => {
+                    //   if (e.name == "STORE PAY") {
+                    //     storepayOnOpen();
+                    //   } else {
+                    //     getPocketQr({
+                    //       orderid: paymentData?.orderid,
+                    //     });
+                    //     PocketOnOpen();
+                    //   }
+                    // }}
                   >
                     <HStack gap={2}>
-                      <StorePay />
+                      {/* <StorePay /> */}
                       <Image
                         src={e.icon ?? ""}
                         alt={e.name ?? ""}
@@ -288,8 +309,8 @@ export const PaymentPay = () => {
                         {e.name}
                       </Text>
                     </HStack>
-                    <RightArrow color="#1E1E1E" w="24" h="24" />
-                    <StorePayModal
+                    <IconArrowRight color="#1E1E1E" size={24} />
+                    {/* <StorePayModal
                       orderid={orderData?.orderid.toString() ?? ""}
                       isOpen={storepayIsOpen}
                       paymentid={
@@ -304,7 +325,7 @@ export const PaymentPay = () => {
                         total={orderData?.alltotal!}
                         qrcode={pocketqr?.qrcode ?? ""}
                       />
-                    )}
+                    )} */}
                   </HStack>
                 )
               )}
@@ -318,7 +339,7 @@ export const PaymentPay = () => {
             </Text>
           </VStack>
         )
-      ) : null} */}
+      ) : null}
       <StorePayModal
         isOpen={storepayIsOpen}
         onClose={storepayOnClose}

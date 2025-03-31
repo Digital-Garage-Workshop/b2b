@@ -311,12 +311,10 @@ const theme = extendTheme({
           }
         },
         secondary: {
-          bg: "#F9FAFB",
-          color: "#1E1E1E",
-          border: "1px solid #E4E7EC",
+          bg: "#F2F4F7",
+          color: "#475467",
           '&:hover': {
-            bg: "#F2F4F7",
-            border: "1px solid #D0D5DD",
+            bg: "#D0D5DD",
           },
         },
         navy: {

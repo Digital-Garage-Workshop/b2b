@@ -3,65 +3,168 @@ import { grey200, grey600, primary } from "@/theme/colors";
 import {
   Button,
   Divider,
-  Grid,
-  Highlight,
   HStack,
-  Input,
+  Radio,
+  RadioGroup,
   Stack,
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { IconInfoCircle, IconTruckDelivery } from "@tabler/icons-react";
-import { useState } from "react";
+import {
+  IconEdit,
+  IconInfoCircle,
+  IconTrash,
+  IconTruckDelivery,
+} from "@tabler/icons-react";
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
 import { useFormik } from "formik";
 import * as yup from "yup";
+import { UseApi } from "@/hooks";
+import {
+  AddUserAddress,
+  DeleteUserAddress,
+  GetUserAddresses,
+  UpdateAddress,
+} from "@/_services/user";
+import { UbZone } from "./UbZone";
+import { Province } from "./Province";
 
-const validationSchema = yup.object({
-  khoroo: yup.string().required("Хороо оруулна уу"),
-  phoneNumber: yup.string().required("Утас оруулна уу"),
-  district: yup.string().required("Дүүрэг оруулна уу"),
-  moreInfo: yup.string().max(200),
-});
-
-export const SelectLocation = () => {
+export const SelectLocation = ({
+  selectedAddress,
+  setSelectedAddress,
+}: {
+  selectedAddress: string;
+  setSelectedAddress: Dispatch<SetStateAction<string>>;
+}) => {
   const [isUb, setIsUb] = useState(true);
-  const [isExpress, setExpress] = useState(false);
 
+  const [showAddressForm, setShowAddressForm] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingAddressId, setEditingAddressId] = useState(null);
+
+  const validationSchema = useMemo(() => {
+    if (isUb) {
+      return yup.object({
+        khoroo: yup.string().required("Хороо оруулна уу"),
+        phoneNumber: yup.string().required("Утас оруулна уу"),
+        district: yup.string().required("Дүүрэг оруулна уу"),
+        moreInfo: yup.string().max(200),
+      });
+    } else {
+      return yup.object({
+        teamid: yup.string().required("Баг сонгоно уу"),
+        terminal: yup.string().required("Терминал сонгоно уу"),
+        phoneNumber: yup.string().required("Утас оруулна уу"),
+        moreInfo: yup.string().max(200),
+      });
+    }
+  }, [isUb]);
+
+  const [{ data: userAddress, isLoading: userAddressLoader }, getUserAddress] =
+    UseApi({
+      service: GetUserAddresses,
+      useAuth: true,
+    });
+
+  const [{ data: addAddressData, isLoading: addLoader }, addUserAddress] =
+    UseApi({
+      service: AddUserAddress,
+      useAuth: true,
+    });
+
+  const [{ data: updateAddressData, isLoading: updateLoader }, updateAddress] =
+    UseApi({
+      service: UpdateAddress,
+      useAuth: true,
+    });
+
+  const [{ data: delData, isLoading: delloader }, delUserAddress] = UseApi({
+    service: DeleteUserAddress,
+    useAuth: true,
+  });
   const formik = useFormik({
     initialValues: {
       phoneNumber: "",
       district: "",
       khoroo: "",
       moreInfo: "",
+      address: "",
+      cityid: "",
+      teamid: "",
+      terminal: "",
+      province: "",
+      id: "",
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
       try {
+        await addUserAddress({
+          id: values.id,
+          country: isUb ? "city" : "countryside",
+          phone: formik.values.phoneNumber,
+          address: formik.values.moreInfo,
+          cityid: isUb ? "1" : formik.values.province,
+          districtid: formik.values.district,
+          teamid: formik.values.khoroo,
+          terminalid: formik.values.terminal,
+        });
+
+        formik.resetForm();
+        setShowAddressForm(false);
+        setIsEditing(false);
+        setEditingAddressId(null);
+        getUserAddress();
       } catch (error) {
         console.error("Error in form submission:", error);
       }
     },
   });
-  const inputs = [
-    {
-      name: "phoneNumber",
-      placeHolder: "+976",
-      label: "Утасны дугаар",
-      value: formik.values.phoneNumber,
-    },
-    {
-      name: "email",
-      placeHolder: "Жишээ@gmail.com",
-      label: "Дүүрэг",
-      value: formik.values.district,
-    },
-    {
-      name: "phoneNumber",
-      placeHolder: "+976",
-      label: "Утасны дугаар",
-      value: formik.values.phoneNumber,
-    },
-  ];
+
+  useEffect(() => {
+    getUserAddress();
+  }, []);
+
+  useEffect(() => {
+    if (userAddress?.length > 0 && !selectedAddress) {
+      setSelectedAddress(userAddress[0].id || "0");
+    }
+  }, [userAddress, selectedAddress]);
+
+  const handleAddAddress = () => {
+    setShowAddressForm(true);
+    setIsEditing(false);
+    formik.resetForm();
+  };
+
+  const handleCancelAdd = () => {
+    setShowAddressForm(false);
+    setIsEditing(false);
+    setEditingAddressId(null);
+    formik.resetForm();
+  };
+
+  const handleEditAddress = (address: any) => {
+    const addressIsUb = address.country === "city";
+    setIsUb(addressIsUb);
+
+    formik.setValues({
+      id: address.id || "",
+      phoneNumber: address.phone || "",
+      district: address.districtid || "",
+      khoroo: address.teamid || "",
+      moreInfo: address.address || "",
+      address: address.address || "",
+      cityid: address.cityid || "",
+      teamid: address.teamid || "",
+      province: addressIsUb ? "" : address.cityid || "",
+      terminal: address.terminalid || "",
+    });
+
+    setIsEditing(true);
+    setEditingAddressId(address.id);
+    setShowAddressForm(true);
+  };
+
   return (
     <VStack
       w="full"
@@ -117,7 +220,7 @@ export const SelectLocation = () => {
             <IconTruckDelivery size={24} />
           </Stack>
           <VStack align="flex-start" gap={0}>
-            <Text variant="subtitle3">Улаанбаатар доторх</Text>
+            <Text variant="subtitle3">Хөдөө орон нутаг</Text>
             <Text variant="caption">
               Таны захиалгын хаягйин дагуу хүргэж өгнө.
             </Text>
@@ -125,75 +228,64 @@ export const SelectLocation = () => {
         </HStack>
       </HStack>
       <Divider />
-      <HStack w="full" gap={4}>
-        <HStack
-          border={`1.5px solid ${!isExpress ? primary : grey200}`}
-          bg={!isExpress ? "#FEF7F2" : "white"}
-          p="10px"
-          borderRadius={8}
-          flex={1}
-          cursor="pointer"
-          onClick={() => setExpress(false)}
-          justify="space-between"
-        >
-          <VStack align="flex-start" gap={0}>
-            <Text variant="subtitle3">Энгийн хүргэлт</Text>
-            <Text variant="caption">24-48 цагт хүргэгдэнэ</Text>
-          </VStack>
-          <Text variant="subtitle3">+6000₮</Text>
-        </HStack>
-        <HStack
-          border={`1.5px solid ${isExpress ? primary : grey200}`}
-          bg={isExpress ? "#FEF7F2" : "white"}
-          p="10px"
-          borderRadius={8}
-          flex={1}
-          cursor="pointer"
-          onClick={() => setExpress(true)}
-          justify="space-between"
-        >
-          <VStack align="flex-start" gap={0}>
-            <Text variant="subtitle3"> Шуурхай хүргэлт</Text>
-            <Text variant="caption">2-5 цагт хүргэгдэнэ</Text>
-          </VStack>
-          <Text variant="subtitle3">+12’000₮</Text>
-        </HStack>
-      </HStack>
 
-      <Grid w="full" templateColumns="repeat(3, 1fr)" rowGap={4} columnGap={4}>
-        {inputs.map((item, index: number) => (
-          <VStack gap="6px" align={"flex-start"} key={index}>
-            <Text variant="subtitle3">
-              <Highlight query={"*"} styles={{ color: "#D92D20" }}>
-                {`${item.label} *`}
-              </Highlight>
-            </Text>
-            <Input
-              name={item.name}
-              flex={1}
-              placeholder={item.placeHolder}
-              value={item.value || ""}
-              onChange={formik.handleChange}
-            />
+      {userAddress?.length > 0 && (
+        <RadioGroup
+          w="full"
+          value={selectedAddress}
+          onChange={setSelectedAddress}
+        >
+          <VStack w="full" align="flex-start" spacing={4}>
+            {userAddress.map((address: any, index: number) => (
+              <HStack
+                w="full"
+                justify="space-between"
+                key={address.addressid || index}
+              >
+                <HStack gap={4}>
+                  <Radio
+                    value={address.id || index.toString()}
+                    colorScheme="orange"
+                  />
+                  <VStack align="flex-start">
+                    <Text variant="subtitle3">
+                      {address?.cityname},{address?.districtname},
+                      {address?.teamname}
+                    </Text>
+                    <Text variant="body3">{address?.phone}</Text>
+                  </VStack>
+                </HStack>
+                <HStack>
+                  <Button
+                    variant="secondary"
+                    leftIcon={<IconEdit size={20} color={grey600} />}
+                    color={grey600}
+                    onClick={() => handleEditAddress(address)}
+                  >
+                    Засах
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    p={"6px"}
+                    borderRadius={"full"}
+                    onClick={() => delUserAddress({ addressid: address.id })}
+                  >
+                    <IconTrash />
+                  </Button>
+                </HStack>
+              </HStack>
+            ))}
           </VStack>
-        ))}
-      </Grid>
-      <VStack gap="6px" align={"flex-start"} w="full">
-        <Text variant="subtitle3">Дэлгэрэнгүй хаяг (заавал биш) </Text>
-        <Input
-          name="moreInfo"
-          flex={1}
-          placeholder="Энд мессежээ бичнэ үү..."
-          onChange={formik.handleChange}
-          variant="custom"
-          background="var(--Primary-White, #FFF)"
-          _focus={{
-            outline: "none",
-          }}
-          value={formik.values.moreInfo}
-          onBlur={formik.handleBlur}
-        />
-      </VStack>
+        </RadioGroup>
+      )}
+
+      {showAddressForm && (
+        <>
+          <Divider />
+          {isUb ? <UbZone formik={formik} /> : <Province formik={formik} />}
+        </>
+      )}
+
       <HStack align="flex-start">
         <IconInfoCircle color={grey600} size={24} />
         <Text variant="body3" color={grey600}>
@@ -201,7 +293,36 @@ export const SelectLocation = () => {
           маргааш нь хүргэлтэнд гарах болно.
         </Text>
       </HStack>
-      <Button w="full">Хадгалах</Button>
+
+      {showAddressForm ? (
+        <HStack w="full" spacing={4}>
+          <Button
+            w="full"
+            onClick={() => {
+              updateAddress({
+                addressid: formik.values.id,
+                country: isUb ? "city" : "countryside",
+                phone: formik.values.phoneNumber,
+                address: formik.values.moreInfo,
+                cityid: isUb ? "1" : formik.values.province,
+                districtid: formik.values.district,
+                teamid: formik.values.khoroo,
+                terminalid: formik.values.terminal,
+              });
+            }}
+            isLoading={addLoader}
+          >
+            {isEditing ? "Шинэчлэх" : "Хадгалах"}
+          </Button>
+          <Button w="full" variant="outline" onClick={handleCancelAdd}>
+            Цуцлах
+          </Button>
+        </HStack>
+      ) : (
+        <Button w="full" onClick={handleAddAddress}>
+          Хаяг нэмэх
+        </Button>
+      )}
     </VStack>
   );
 };

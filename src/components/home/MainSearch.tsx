@@ -54,12 +54,12 @@ export const MainSearch = () => {
           />
         </InputGroup>
         <HStack gap={4} display={session ? "none" : "flex"}>
-          <Link href="/sign-up">
-            <Button rightIcon={<IconArrowRight />}>Бүртгүүлэх</Button>
-          </Link>
           <Button variant="outline" onClick={loginOnOpen}>
             Нэвтрэх
           </Button>
+          <Link href="/sign-up">
+            <Button rightIcon={<IconArrowRight />}>Бүртгүүлэх</Button>
+          </Link>
         </HStack>
       </VStack>
       <LoginModal onClose={loginOnClose} isOpen={loginIsOpen} />

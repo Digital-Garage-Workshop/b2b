@@ -39,15 +39,15 @@ export const Providers = ({
         <ColorModeScript initialColorMode={theme.config.initialColorMode} />
         <ChakraBaseProvider>
           <ChakraProvider theme={theme}>
-            {/* <Provider store={store}> */}
-            <SessionProvider>
-              <Header />
-              <div className="w-full flex justify-center">
-                <div className="w-[82%]">{children}</div>
-              </div>
-              <Footer />
-            </SessionProvider>
-            {/* </Provider> */}
+            <Provider store={store}>
+              <SessionProvider>
+                <Header />
+                <div className="w-full flex justify-center">
+                  <div className="w-[82%]">{children}</div>
+                </div>
+                <Footer />
+              </SessionProvider>
+            </Provider>
           </ChakraProvider>
         </ChakraBaseProvider>
       </Suspense>

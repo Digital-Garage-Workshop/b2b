@@ -25,7 +25,7 @@ import {
   IconMapPinCheck,
 } from "@tabler/icons-react";
 
-export const OrderTrack = () => {
+export const OrderTrack = ({ orderDetail }: { orderDetail: any }) => {
   const steps = [
     { icon: <IconClock />, isActive: true, isComplete: true },
     { icon: <IconPackage />, isActive: true, isComplete: true },

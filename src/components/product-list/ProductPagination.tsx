@@ -23,7 +23,7 @@ import {
 } from "@tabler/icons-react";
 import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-// import { useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
 export const ProductPagination = () => {
   const [isListView, setListView] = useState(false);
@@ -31,10 +31,12 @@ export const ProductPagination = () => {
 
   const { categoryid } = useParams() as { categoryid: string };
   const searchParams = useSearchParams();
-  const brandno = searchParams?.get("brandno") || null;
+  const brandno = searchParams?.get("brand") || null;
   const carid = searchParams?.get("car") || null;
+  const maxprice = searchParams?.get("maxPrice") || null;
+  const minprice = searchParams?.get("minPrice") || null;
   const currentSubCategory = searchParams?.get("sub");
-  // const cars = useSelector((state: { cars: any }) => state.cars.cars);
+  const cars = useSelector((state: { cars: any }) => state.cars.cars);
 
   const [
     { data: products, isLoading: productLoader, pagination: productPagination },
@@ -51,6 +53,8 @@ export const ProductPagination = () => {
         brandno,
         carid,
         page,
+        maxprice,
+        minprice,
       };
 
       getProducts(params);
@@ -59,7 +63,15 @@ export const ProductPagination = () => {
     if (currentSubCategory || categoryid) {
       fetchProducts();
     }
-  }, [categoryid, brandno, carid, page, currentSubCategory]);
+  }, [
+    categoryid,
+    brandno,
+    carid,
+    page,
+    currentSubCategory,
+    maxprice,
+    minprice,
+  ]);
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
@@ -171,15 +183,15 @@ export const ProductPagination = () => {
 
   return (
     <VStack align="flex-start" gap={6} w="full" minH="100vh">
-      {/* {cars && (
-        <Grid w="full" templateColumns="repeat(2, 1fr)">
+      {cars && (
+        <Grid w="full" templateColumns="repeat(2, 1fr)" gap={6}>
           {cars?.map((car: any, index: number) => (
-            <GridItem key={index} w="full">
+            <GridItem key={`${index}-${car?.carid}-car`} w="full">
               <CarInfoCard car={car} />
             </GridItem>
           ))}
         </Grid>
-      )} */}
+      )}
 
       <HStack w="full" justify="space-between">
         <HStack p="6px 16px" borderRadius={8} border={`1px solid ${grey200}`}>

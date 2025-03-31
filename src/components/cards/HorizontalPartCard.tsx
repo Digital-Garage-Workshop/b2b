@@ -1,3 +1,4 @@
+"use client";
 import { grey200 } from "@/theme/colors";
 import {
   Button,
@@ -11,9 +12,11 @@ import {
 } from "@chakra-ui/react";
 import { Branches } from "../product-detail";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 export const HorizontalPartCard = (props: { item: any }) => {
   const { item } = props;
+  const { data: session } = useSession();
   return (
     <Link style={{ width: "100%" }} href={`/product-detail/${item.articleid}`}>
       <HStack
@@ -73,8 +76,14 @@ export const HorizontalPartCard = (props: { item: any }) => {
         </HStack>
         <HStack gap={4} align={"flex-start"} w={324}>
           <Divider orientation="vertical" height={187} />
-          <VStack flex={1} maxW={300} align={"flex-start"} gap={"19px"}>
-            <VStack gap="10px" w="full">
+          <VStack
+            flex={1}
+            maxW={300}
+            align={"flex-start"}
+            gap={"19px"}
+            filter={session ? "none" : "blur(5px)"}
+          >
+            <VStack gap="10px" w="full" h={"140px"}>
               <HStack w="full" gap={0}>
                 <Text w={"22%"} variant="caption" textAlign={"start"}>
                   ID:
@@ -91,7 +100,7 @@ export const HorizontalPartCard = (props: { item: any }) => {
                 ?.map((branch: any, index: number) => (
                   <div key={index} className="flex flex-col gap-[10px] w-full">
                     <Branches branch={branch} product={item} />
-                    {index < 1 && (
+                    {item?.inventories.length > 1 && index < 1 && (
                       <HStack w="full" overflow={"hidden"} gap={1}>
                         {Array(24)
                           .fill("")

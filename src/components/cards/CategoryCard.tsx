@@ -18,7 +18,10 @@ export const CategoryCard = (props: CategoryData) => {
   const { item } = props;
 
   return (
-    <Link href={`/product-list/${item.categoryid}`} style={{ width: "100%" }}>
+    <Link
+      href={`/product-list/${item.categoryid}?part=${item.name}`}
+      style={{ width: "100%" }}
+    >
       <VStack
         borderRadius={8}
         top={0}

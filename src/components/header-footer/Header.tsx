@@ -11,6 +11,7 @@ import {
 } from "@chakra-ui/react";
 import {
   IconArrowRight,
+  IconLogout,
   IconMenu2,
   IconShoppingCart,
   IconUser,
@@ -77,7 +78,8 @@ export const Header = () => {
                 signOut({ redirect: true, callbackUrl: "/" });
               }}
             >
-              <IconUser />
+              {/* <IconUser /> */}
+              <IconLogout />
             </Button>
           </Link>
 
