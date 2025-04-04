@@ -38,7 +38,7 @@ export const SelectLocation = ({
 }) => {
   const [isUb, setIsUb] = useState(true);
 
-  const [showAddressForm, setShowAddressForm] = useState(false);
+  const [showAddressForm, setShowAddressForm] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editingAddressId, setEditingAddressId] = useState(null);
 
@@ -299,18 +299,23 @@ export const SelectLocation = ({
           <Button
             w="full"
             onClick={() => {
-              updateAddress({
-                addressid: formik.values.id,
-                country: isUb ? "city" : "countryside",
-                phone: formik.values.phoneNumber,
-                address: formik.values.moreInfo,
-                cityid: isUb ? "1" : formik.values.province,
-                districtid: formik.values.district,
-                teamid: formik.values.khoroo,
-                terminalid: formik.values.terminal,
-              });
+              if (isEditing) {
+                updateAddress({
+                  addressid: formik.values.id,
+                  country: isUb ? "city" : "countryside",
+                  phone: formik.values.phoneNumber,
+                  address: formik.values.moreInfo,
+                  cityid: isUb ? "1" : formik.values.province,
+                  districtid: formik.values.district,
+                  teamid: formik.values.khoroo,
+                  terminalid: formik.values.terminal,
+                });
+              } else {
+                formik.handleSubmit();
+              }
             }}
-            isLoading={addLoader}
+            isLoading={addLoader || updateLoader}
+            variant="navy"
           >
             {isEditing ? "Шинэчлэх" : "Хадгалах"}
           </Button>
@@ -319,7 +324,7 @@ export const SelectLocation = ({
           </Button>
         </HStack>
       ) : (
-        <Button w="full" onClick={handleAddAddress}>
+        <Button w="full" onClick={handleAddAddress} variant="navy">
           Хаяг нэмэх
         </Button>
       )}

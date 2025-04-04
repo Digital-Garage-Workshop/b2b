@@ -22,6 +22,7 @@ import { useCustomToast, UseApi } from "@/hooks";
 
 // Import the company register service
 import { GetCompanyRegister } from "@/_services"; // Adjust the import path as needed
+import { grey600 } from "@/theme/colors";
 
 // Define types for form values
 interface FormValues {
@@ -132,7 +133,6 @@ export const SignUpForm = () => {
     },
     validationSchema,
     onSubmit: async (values) => {
-      // Don't proceed with registration if company lookup is in progress
       if (companyLoading) {
         toast({
           type: "warning",
@@ -142,7 +142,6 @@ export const SignUpForm = () => {
         return;
       }
 
-      // Don't proceed if company registration is required but not found
       if (tag === "company" && !companyName) {
         toast({
           type: "error",
@@ -184,10 +183,8 @@ export const SignUpForm = () => {
         toast({
           type: "success",
           title: "Амжилттай!",
-          description: "Та амжилттай бүртгүүллээ.",
+          description: "Таны И-Мэйлд баталгаажуулах линк илгээлээ.",
         });
-
-        router.push("/verification-pending");
       } catch (error: any) {
         toast({
           type: "error",
@@ -200,7 +197,6 @@ export const SignUpForm = () => {
     },
   });
 
-  // Look up company information when registration number is entered
   useEffect(() => {
     if (
       tag === "company" &&
@@ -212,12 +208,10 @@ export const SignUpForm = () => {
     }
   }, [formik.values.companyRegNum, regNumBlurred]);
 
-  // Update company name when data is received
   useEffect(() => {
     if (companyData && companyData.name) {
       setCompanyName(companyData.name);
 
-      // If location is empty, populate it from API response if available
       if (!formik.values.companyLocation && companyData.address) {
         formik.setFieldValue("companyLocation", companyData.address);
       }
@@ -289,7 +283,6 @@ export const SignUpForm = () => {
 
   if (!tag) return null;
 
-  // Form submission is disabled until terms and privacy are accepted
   const isSubmitDisabled =
     !formik.values.termsAccepted ||
     !formik.values.privacyAccepted ||
@@ -297,86 +290,112 @@ export const SignUpForm = () => {
     companyLoading;
 
   return (
-    <VStack w="60%" gap={8} mt="115px">
-      {/* Header */}
-      <Text variant="h7">
-        {tag === "company"
-          ? "Компанийнхаа талаар бидэнтэй хуваалцаач"
-          : "Хувийн мэдээлэлээ оруулна уу"}
-      </Text>
-      <Text variant="body2" mt={-6}>
-        Start with what you know, see what sticks, and get paid
-      </Text>
+    <VStack w="100%" gap={116}>
+      <VStack w="60%" gap={8} mt={100}>
+        <Text variant="h7">
+          {tag === "company"
+            ? "Компанийнхаа талаар бидэнтэй хуваалцаач"
+            : "Хувийн мэдээлэлээ оруулна уу"}
+        </Text>
+        <Text variant="body2" mt={-6}>
+          Start with what you know, see what sticks, and get paid
+        </Text>
 
-      {/* Form Fields */}
-      <Grid w="full" templateColumns="repeat(2, 1fr)" rowGap={4} columnGap={4}>
-        {formFields.map((field, index) => {
-          // Skip company fields for non-company signup
-          if (field.isCompanyField && tag !== "company") return null;
+        {/* Form Fields */}
+        <Grid
+          w="full"
+          templateColumns="repeat(2, 1fr)"
+          rowGap={4}
+          columnGap={4}
+        >
+          {formFields.map((field, index) => {
+            if (field.isCompanyField && tag !== "company") return null;
 
-          const fieldName = field.name;
-          const fieldError =
-            formik.touched[fieldName] && formik.errors[fieldName];
+            const fieldName = field.name;
+            const fieldError =
+              formik.touched[fieldName] && formik.errors[fieldName];
 
-          // Special case for company registration number field
-          if (fieldName === "companyRegNum") {
-            return (
-              <FormControl key={index}>
-                <Text pb="6px" variant="subtitle3">
-                  {field.label}
-                </Text>
-                <VStack w="full" spacing={2} align="start">
+            if (fieldName === "companyRegNum") {
+              return (
+                <FormControl key={index}>
+                  <Text pb="6px" variant="subtitle3">
+                    {field.label}
+                  </Text>
+                  <VStack w="full" spacing={2} align="start">
+                    <Input
+                      name={fieldName.toString()}
+                      flex={1}
+                      placeholder={field.placeHolder}
+                      value={formik.values[fieldName].toString()}
+                      onChange={formik.handleChange}
+                      onBlur={(e) => {
+                        formik.handleBlur(e);
+                        setRegNumBlurred(true);
+                      }}
+                      type={field.type || "text"}
+                      isDisabled={companyLoading}
+                    />
+                    {companyLoading && (
+                      <Text fontSize="sm" color="gray.500">
+                        Компани хайж байна...
+                      </Text>
+                    )}
+                    {companyName && (
+                      <Box
+                        p={2}
+                        bg="green.50"
+                        borderRadius="md"
+                        width="full"
+                        borderLeft="4px solid"
+                        borderColor="green.500"
+                      >
+                        <Text fontSize="sm" fontWeight="medium">
+                          {companyName}
+                        </Text>
+                      </Box>
+                    )}
+                    {companyError &&
+                      regNumBlurred &&
+                      formik.values.companyRegNum && (
+                        <Text fontSize="sm" color="red.500">
+                          Компани олдсонгүй. Регистрийн дугаараа шалгана уу.
+                        </Text>
+                      )}
+                    {fieldError && (
+                      <FormHelperText color="#D72C0D">
+                        {fieldError as string}
+                      </FormHelperText>
+                    )}
+                  </VStack>
+                </FormControl>
+              );
+            }
+
+            if (fieldName === "companyLocation" && tag === "company") {
+              return (
+                <FormControl key={index}>
+                  <Text pb="6px" variant="subtitle3">
+                    {field.label}
+                  </Text>
                   <Input
                     name={fieldName.toString()}
                     flex={1}
                     placeholder={field.placeHolder}
                     value={formik.values[fieldName].toString()}
                     onChange={formik.handleChange}
-                    onBlur={(e) => {
-                      formik.handleBlur(e);
-                      setRegNumBlurred(true);
-                    }}
+                    onBlur={formik.handleBlur}
                     type={field.type || "text"}
                     isDisabled={companyLoading}
                   />
-                  {companyLoading && (
-                    <Text fontSize="sm" color="gray.500">
-                      Компани хайж байна...
-                    </Text>
-                  )}
-                  {companyName && (
-                    <Box
-                      p={2}
-                      bg="green.50"
-                      borderRadius="md"
-                      width="full"
-                      borderLeft="4px solid"
-                      borderColor="green.500"
-                    >
-                      <Text fontSize="sm" fontWeight="medium">
-                        {companyName}
-                      </Text>
-                    </Box>
-                  )}
-                  {companyError &&
-                    regNumBlurred &&
-                    formik.values.companyRegNum && (
-                      <Text fontSize="sm" color="red.500">
-                        Компани олдсонгүй. Регистрийн дугаараа шалгана уу.
-                      </Text>
-                    )}
                   {fieldError && (
                     <FormHelperText color="#D72C0D">
                       {fieldError as string}
                     </FormHelperText>
                   )}
-                </VStack>
-              </FormControl>
-            );
-          }
+                </FormControl>
+              );
+            }
 
-          // Special case for company location field - auto-populated from API
-          if (fieldName === "companyLocation" && tag === "company") {
             return (
               <FormControl key={index}>
                 <Text pb="6px" variant="subtitle3">
@@ -390,7 +409,6 @@ export const SignUpForm = () => {
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   type={field.type || "text"}
-                  isDisabled={companyLoading}
                 />
                 {fieldError && (
                   <FormHelperText color="#D72C0D">
@@ -399,121 +417,112 @@ export const SignUpForm = () => {
                 )}
               </FormControl>
             );
-          }
+          })}
+        </Grid>
 
-          return (
-            <FormControl key={index}>
-              <Text pb="6px" variant="subtitle3">
-                {field.label}
-              </Text>
-              <Input
-                name={fieldName.toString()}
-                flex={1}
-                placeholder={field.placeHolder}
-                value={formik.values[fieldName].toString()}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                type={field.type || "text"}
-              />
-              {fieldError && (
-                <FormHelperText color="#D72C0D">
-                  {fieldError as string}
-                </FormHelperText>
-              )}
-            </FormControl>
-          );
-        })}
-      </Grid>
+        <VStack gap={2} w="full">
+          <ValidationCheck
+            text="Багадаа 8 тэмдэгт урттай"
+            isValid={validations.minLength}
+          />
+          <ValidationCheck
+            text="Нэг том үсэг"
+            isValid={validations.hasUpperCase}
+          />
+          <ValidationCheck
+            text="Нэг жижиг үсэг"
+            isValid={validations.hasLowerCase}
+          />
+          <ValidationCheck
+            text="Нэг тоо агуулах"
+            isValid={validations.hasNumber}
+          />
+          <ValidationCheck
+            text="Нэг тусгай тэмдэгт (@$!%*?&)"
+            isValid={validations.hasSpecialChar}
+          />
+          <ValidationCheck
+            text="Нууц үгнүүд таарч байна"
+            isValid={validations.passwordsMatch}
+          />
+        </VStack>
 
-      {/* Password Requirements */}
-      <VStack gap={2} w="full">
-        <ValidationCheck
-          text="Багадаа 8 тэмдэгт урттай"
-          isValid={validations.minLength}
-        />
-        <ValidationCheck
-          text="Нэг том үсэг"
-          isValid={validations.hasUpperCase}
-        />
-        <ValidationCheck
-          text="Нэг жижиг үсэг"
-          isValid={validations.hasLowerCase}
-        />
-        <ValidationCheck
-          text="Нэг тоо агуулах"
-          isValid={validations.hasNumber}
-        />
-        <ValidationCheck
-          text="Нэг тусгай тэмдэгт (@$!%*?&)"
-          isValid={validations.hasSpecialChar}
-        />
-        <ValidationCheck
-          text="Нууц үгнүүд таарч байна"
-          isValid={validations.passwordsMatch}
-        />
+        {/* Terms and Privacy Checkboxes */}
+        <HStack gap={4} w="full" align="flex-start">
+          <Checkbox
+            name="termsAccepted"
+            isChecked={formik.values.termsAccepted}
+            onChange={formik.handleChange}
+            isInvalid={
+              formik.touched.termsAccepted && !formik.values.termsAccepted
+            }
+          />
+          <Text color="#475467" fontSize={14}>
+            Би{" "}
+            <Link
+              href="/terms-and-condition"
+              target="_blank"
+              style={{
+                fontSize: "14px",
+                fontWeight: "bold",
+              }}
+            >
+              Үйлчилгээний нөхцөлтэй{" "}
+            </Link>
+            танилцаж, хүлээн зөвшөөрсөн.
+          </Text>
+        </HStack>
+        <HStack gap={4} w="full" mt={-6}>
+          <Checkbox
+            name="privacyAccepted"
+            isChecked={formik.values.privacyAccepted}
+            onChange={formik.handleChange}
+            isInvalid={
+              formik.touched.privacyAccepted && !formik.values.privacyAccepted
+            }
+          />
+          <Text color="#475467" fontSize={14}>
+            Би{" "}
+            <Link
+              href="/privacy-and-policy"
+              target="_blank"
+              style={{
+                fontSize: "14px",
+                fontWeight: "bold",
+              }}
+            >
+              Нууцлалын бодлогыг{" "}
+            </Link>
+            танилцаж, хүлээн зөвшөөрсөн.
+          </Text>
+        </HStack>
+
+        {/* Submit Button */}
+        <Button
+          w="full"
+          isLoading={isLoading}
+          type="submit"
+          onClick={() => formik.handleSubmit()}
+          isDisabled={isSubmitDisabled}
+          colorScheme="teal"
+        >
+          Бүртгүүлэх
+        </Button>
       </VStack>
-
-      {/* Terms and Privacy Checkboxes */}
-      <HStack gap={4} w="full" align="flex-start">
-        <Checkbox
-          name="termsAccepted"
-          isChecked={formik.values.termsAccepted}
-          onChange={formik.handleChange}
-          isInvalid={
-            formik.touched.termsAccepted && !formik.values.termsAccepted
-          }
-        />
-        <Text color="#475467" fontSize={14}>
-          Би{" "}
-          <Link
-            href="/terms-and-condition"
-            target="_blank"
-            style={{
-              fontSize: "14px",
-              fontWeight: "bold",
-            }}
-          >
-            Үйлчилгээний нөхцөлтэй{" "}
-          </Link>
-          танилцаж, хүлээн зөвшөөрсөн.
-        </Text>
-      </HStack>
-      <HStack gap={4} w="full" mt={-6}>
-        <Checkbox
-          name="privacyAccepted"
-          isChecked={formik.values.privacyAccepted}
-          onChange={formik.handleChange}
-          isInvalid={
-            formik.touched.privacyAccepted && !formik.values.privacyAccepted
-          }
-        />
-        <Text color="#475467" fontSize={14}>
-          Би{" "}
-          <Link
-            href="/privacy-and-policy"
-            target="_blank"
-            style={{
-              fontSize: "14px",
-              fontWeight: "bold",
-            }}
-          >
-            Нууцлалын бодлогыг{" "}
-          </Link>
-          танилцаж, хүлээн зөвшөөрсөн.
-        </Text>
-      </HStack>
-
-      {/* Submit Button */}
-      <Button
+      <HStack
         w="full"
-        isLoading={isLoading}
-        type="submit"
-        onClick={() => formik.handleSubmit()}
-        isDisabled={isSubmitDisabled}
-        colorScheme="teal"
+        justify="space-between"
+        pb={12}
+
+        // display={!tag ? "flex" : "none"}
       >
-        Бүртгүүлэх
-      </Button>
+        <Text color={grey600} fontSize={12}>
+          © 2023 — Copyright
+        </Text>
+        <Text fontSize={12} color={grey600}>
+          Privacy
+        </Text>
+      </HStack>
     </VStack>
   );
 };

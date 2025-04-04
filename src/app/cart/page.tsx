@@ -6,17 +6,34 @@ import {
   OrderInfo,
   SelectLocation,
 } from "@/components";
-import { UseApi } from "@/hooks";
-import { ExelIcon } from "@/icons";
-import { error600, grey200, grey500 } from "@/theme/colors";
-import { Button, HStack, Text, VStack } from "@chakra-ui/react";
+import { UseApi, useCustomToast } from "@/hooks";
+import { ExelIcon, LongArrow } from "@/icons";
+import {
+  error600,
+  grey100,
+  grey200,
+  grey50,
+  grey500,
+  primary,
+} from "@/theme/colors";
+import {
+  Button,
+  HStack,
+  Image,
+  Skeleton,
+  Spinner,
+  Text,
+  VStack,
+} from "@chakra-ui/react";
 import { IconPackage, IconTrash } from "@tabler/icons-react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function Page() {
-  const [localProducts, setLocalProducts] = useState([]);
+  const [localProducts, setLocalProducts] = useState<any[]>([]);
   const [allTotal, setAllTotal] = useState(0);
   const [selectedAddress, setSelectedAddress] = useState("");
+  const toast = useCustomToast();
 
   const [{ data: products, isLoading: productLoader }, getCartProduct] = UseApi(
     {
@@ -25,11 +42,13 @@ export default function Page() {
     }
   );
 
-  const [{ data: emptyCartData, isLoading: emptyCartLoader }, emptyCart] =
-    UseApi({
-      service: EmptyCart,
-      useAuth: true,
-    });
+  const [
+    { data: emptyCartData, isLoading: emptyCartLoader, successMessage },
+    emptyCart,
+  ] = UseApi({
+    service: EmptyCart,
+    useAuth: true,
+  });
 
   useEffect(() => {
     if (products) {
@@ -38,10 +57,15 @@ export default function Page() {
   }, [products]);
 
   useEffect(() => {
-    if (emptyCartData) {
+    if (successMessage) {
       setLocalProducts([]);
+      toast({
+        type: "success",
+        title: "Амжилттай",
+        description: successMessage || "",
+      });
     }
-  }, [emptyCartData]);
+  }, [emptyCartData, successMessage]);
 
   useEffect(() => {
     if (localProducts && localProducts.length > 0) {
@@ -61,19 +85,25 @@ export default function Page() {
   }, []);
 
   const handleEmptyCart = () => {
-    setLocalProducts([]);
+    // setLocalProducts([]);
     emptyCart();
   };
 
   return (
-    <VStack w="full" pb={110} minH="100vh">
-      <BreadCrumb crumbs={[{ path: "Cart", href: "" }]} />
+    <VStack w="full" pb={110} minH="100vh" align="flex-start">
+      <HStack my={"22px"}>
+        <Text variant="subtitle2">1. Сагс</Text>
+        <LongArrow />
+        <Text variant="body2" color={grey500}>
+          2. Хаяг
+        </Text>
+        <LongArrow />
+        <Text variant="body2" color={grey500}>
+          3. Төлбөр төлөлт
+        </Text>
+      </HStack>
       <HStack w="full" gap={6} align="flex-start">
         <VStack flex={4} gap={6}>
-          <SelectLocation
-            setSelectedAddress={setSelectedAddress}
-            selectedAddress={selectedAddress}
-          />
           <VStack
             w="full"
             gap={6}
@@ -83,11 +113,15 @@ export default function Page() {
             border={`1px solid ${grey200}`}
             flex={4}
           >
-            <HStack w="full" justify="space-between">
+            <HStack
+              w="full"
+              justify="space-between"
+              display={localProducts?.length > 0 ? "flex" : "none"}
+            >
               <HStack gap={4}>
                 <Text variant="h8">Сагс</Text>
                 <Text variant="subtitle2" color={grey500}>
-                  {localProducts?.length || 0} items
+                  {localProducts?.length || 0} бүтээгдэхүүн
                 </Text>
               </HStack>
               <HStack
@@ -96,9 +130,13 @@ export default function Page() {
                 display={localProducts?.length > 0 ? "flex" : "none"}
                 onClick={handleEmptyCart}
               >
-                <IconTrash color={error600} size={20} />
+                {emptyCartLoader ? (
+                  <Spinner size="sm" colorScheme={primary} color={primary} />
+                ) : (
+                  <IconTrash color={error600} size={20} />
+                )}
                 <Text variant="body2" color={error600}>
-                  Remove all
+                  Бүгдийг нь устгах
                 </Text>
               </HStack>
             </HStack>
@@ -110,7 +148,38 @@ export default function Page() {
             >
               Excel файлаар татах
             </Button>
-            {localProducts?.length > 0 ? (
+            {productLoader ? (
+              <VStack w="full">
+                <Skeleton
+                  w="full"
+                  h={183}
+                  borderRadius={8}
+                  startColor={grey50}
+                  endColor={grey100}
+                />
+                <Skeleton
+                  w="full"
+                  h={183}
+                  borderRadius={8}
+                  startColor={grey50}
+                  endColor={grey100}
+                />
+                <Skeleton
+                  w="full"
+                  h={183}
+                  borderRadius={8}
+                  startColor={grey50}
+                  endColor={grey100}
+                />
+                <Skeleton
+                  w="full"
+                  h={183}
+                  borderRadius={8}
+                  startColor={grey50}
+                  endColor={grey100}
+                />
+              </VStack>
+            ) : localProducts?.length > 0 ? (
               localProducts?.map((product, index) => {
                 return (
                   <CartProductCard
@@ -125,17 +194,20 @@ export default function Page() {
               <VStack
                 w="full"
                 py={10}
-                gap={3}
+                gap={1}
                 alignItems="center"
                 justify="center"
               >
-                <IconPackage size={64} color={grey500} />
-                <Text fontSize="lg" fontWeight="medium">
-                  Бүтээгдэхүүн олдсонгүй
-                </Text>
-                <Text color={grey500} textAlign="center" maxW={400}>
+                <Image src="/cartempty.svg" h={217} w={263} />
+                <Text variant="subtitle2">Таны сагс хоосон байна!</Text>
+                <Text color={grey500} variant="body3">
                   Танд сагсалсан бүтээгдэхүүн одоогоор байхгүй байна.
                 </Text>
+                <Link href="/">
+                  <Button variant="outline" mt={3}>
+                    Худалдан авалт хийх
+                  </Button>
+                </Link>
               </VStack>
             )}
           </VStack>
@@ -144,6 +216,12 @@ export default function Page() {
           total={allTotal}
           selectedAddress={selectedAddress}
           items={localProducts?.length}
+          showReg={false}
+          handleCreateData={(
+            isOrganization: boolean,
+            regNumber: string,
+            regData?: any
+          ) => {}}
         />
       </HStack>
     </VStack>

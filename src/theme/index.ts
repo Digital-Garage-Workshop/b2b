@@ -5,6 +5,10 @@ const theme = extendTheme({
     initialColorMode: 'light',
     useSystemColorMode: false,
   },
+  fonts: {
+    heading: `'Manrope', sans-serif`,
+    body: `'Manrope', sans-serif`,
+  },
   styles: {
     global: {
       "input:-webkit-autofill": {
@@ -227,6 +231,11 @@ const theme = extendTheme({
             fontSize:'12px',
             fontWeight:'700',
             color:'#1E1E1E'
+          },
+          buttonsm:{
+            fontSize:'13px',
+            fontWeight:'700',
+            color:'white'
           }
         },
         defaultProps: {

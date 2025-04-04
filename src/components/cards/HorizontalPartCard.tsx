@@ -1,5 +1,5 @@
 "use client";
-import { grey200 } from "@/theme/colors";
+import { grey200, primary } from "@/theme/colors";
 import {
   Button,
   Divider,
@@ -26,6 +26,7 @@ export const HorizontalPartCard = (props: { item: any }) => {
         p={4}
         justify="space-between"
         align={"flex-start"}
+        _hover={{ border: `1px solid ${primary}` }}
       >
         <HStack gap={4}>
           <Image
@@ -50,7 +51,7 @@ export const HorizontalPartCard = (props: { item: any }) => {
                 objectFit="contain"
               />
             )}
-            <Text variant="subtitle2">{item?.articleid}</Text>
+            <Text variant="subtitle2">{item?.articleno}</Text>
             <Text variant="title1">
               {item?.brandname}
               {item?.category}

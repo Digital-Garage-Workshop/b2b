@@ -19,59 +19,56 @@ import {
   RadioGroup,
   Spinner,
   Text,
+  useDisclosure,
   VStack,
 } from "@chakra-ui/react";
-import { IconCircleCheck, IconInfoCircle } from "@tabler/icons-react";
+import {
+  IconAlertTriangle,
+  IconCircleCheck,
+  IconInfoCircle,
+} from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { ConsultModal } from "../global";
 
 export const OrderInfo = ({
   total,
   selectedAddress,
   items,
+  showReg,
+  createDataLoader,
+  handleCreateData,
+  hasInventoryErrors,
 }: {
   total: number;
   selectedAddress: string;
   items: number;
+  showReg: boolean;
+  createDataLoader?: boolean;
+  handleCreateData: (
+    isOrganization: boolean,
+    regNumber: string,
+    regData?: any
+  ) => void;
+  hasInventoryErrors?: boolean;
 }) => {
   const [isOrganization, setOrganization] = useState(false);
   const [regNumber, setRegNumber] = useState("");
   const router = useRouter();
-  const toast = useCustomToast();
 
-  const [
-    { data: createPaymentData, isLoading: createDataLoader, errData, error },
-    createOrder,
-  ] = UseApi({
-    service: CreatePayment,
-    useAuth: true,
-  });
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [{ data: regData, isLoading: regDataLoader }, companyFetch] = UseApi({
     service: GetCompanyRegister,
     useAuth: true,
   });
 
-  const handleCreateData = () => {
-    createOrder({
-      etype: isOrganization ? "corporate" : "personal",
-      addressid: selectedAddress,
-      register: regNumber,
-      corporatename: regData?.name,
-    });
+  const toast = useCustomToast();
+
+  const createData = () => {
+    handleCreateData(isOrganization, regNumber, regData);
   };
 
-  useEffect(() => {
-    if (createPaymentData) {
-      router.push(`/payment?order=${createPaymentData?.id}`);
-    } else if (error) {
-      toast({
-        type: "error",
-        title: "Уучлаарай",
-        description: error,
-      });
-    }
-  }, [createPaymentData]);
   return (
     <VStack
       flex={2}
@@ -82,7 +79,7 @@ export const OrderInfo = ({
       borderRadius={8}
     >
       <Text variant="h8">Таны захиалга:</Text>
-      <VStack gap={4} w="full">
+      <VStack gap={4} w="full" display={showReg ? "flex" : "none"}>
         <HStack gap={2} w="full" alignSelf="flex-start">
           <EbarimtIcon />
           <Text fontWeight={700}>И-Баримт</Text>
@@ -150,6 +147,14 @@ export const OrderInfo = ({
             {items} ширхэг
           </Text>
         </HStack>
+        <HStack w="full" justify="space-between">
+          <Text variant="body2" color={textDefault}>
+            Хүргэлт:
+          </Text>
+          <Text variant="body2" color={textDefault}>
+            6’000₮
+          </Text>
+        </HStack>
       </VStack>
       <Divider variant="dashed" my={-2} />
 
@@ -161,7 +166,24 @@ export const OrderInfo = ({
           {formatCurrency(total)}
         </Text>
       </HStack>
-      <Button w="full" onClick={handleCreateData}>
+      <Button
+        w="full"
+        onClick={() => {
+          if (showReg) {
+            if (selectedAddress) {
+              onOpen();
+            } else {
+              toast({
+                type: "error",
+                title: "Уучлаарай",
+                description: "Та хүргэлтийг хаягийг эхлээд сонгоно уу.",
+              });
+            }
+          } else {
+            router.push("/cart/address");
+          }
+        }}
+      >
         Үргэлжлүүлэх
       </Button>
       <HStack bg={warning50} borderRadius={8} p="10px" align="flex-start">
@@ -171,6 +193,17 @@ export const OrderInfo = ({
           боломжгүйг анхаарна уу.
         </Text>
       </HStack>
+      <ConsultModal
+        isOpen={isOpen}
+        onClose={onClose}
+        buttonStr="Төлбөр төлөх"
+        buttonLoader={createDataLoader}
+        iconBg="#FFFAEB"
+        icon={<IconAlertTriangle color="#DC6803" size={29} />}
+        buttonAction={createData}
+        title="Захиалга үүсэх гэж байна"
+        desc="Та төлбөр төлөх гэж дарснаар таны захиалга үүсэж агуулахын тоо ширхэгээс хасагдах болно. Хэрэв та захиалгаа 3 удаа төлбөр төлөлгүй орхисон тохиолдолд манайхаас таныг блоклох болно."
+      />
     </VStack>
   );
 };

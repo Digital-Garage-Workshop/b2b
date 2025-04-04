@@ -34,23 +34,23 @@ export const Providers = ({
 
   return (
     <>
-      <Suspense fallback={<div>Loading...</div>}>
-        {/* <PageTransition> */}
-        <ColorModeScript initialColorMode={theme.config.initialColorMode} />
-        <ChakraBaseProvider>
-          <ChakraProvider theme={theme}>
-            <Provider store={store}>
-              <SessionProvider>
-                <Header />
-                <div className="w-full flex justify-center">
-                  <div className="w-[82%]">{children}</div>
-                </div>
-                <Footer />
-              </SessionProvider>
-            </Provider>
-          </ChakraProvider>
-        </ChakraBaseProvider>
-      </Suspense>
+      {/* <Suspense fallback={<div>Loading...</div>}> */}
+      {/* <PageTransition> */}
+      <ColorModeScript initialColorMode={theme.config.initialColorMode} />
+      <ChakraBaseProvider>
+        <ChakraProvider theme={theme}>
+          <Provider store={store}>
+            <SessionProvider>
+              <Header />
+              <div className="w-full flex justify-center mt-[72px]">
+                <div className="w-[82%]">{children}</div>
+              </div>
+              <Footer />
+            </SessionProvider>
+          </Provider>
+        </ChakraProvider>
+      </ChakraBaseProvider>
+      {/* </Suspense> */}
       {/* </PageTransition> */}
     </>
   );

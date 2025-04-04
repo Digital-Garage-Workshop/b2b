@@ -127,7 +127,21 @@ export const Footer = () => {
           </HStack>
         </VStack>
       </div>
-      <div className="rounded-top"></div>
+      {/* <div className="rounded-top"></div> */}
+      <Stack
+        position="absolute"
+        top={{ xl: "-32px", "2xl": "-30px" }}
+        left={{ xl: "10px", "2xl": "14px" }}
+        right={{ xl: "10px", "2xl": "14px" }}
+        height="32px"
+        background="#1E1E1E"
+        borderTopLeftRadius={32}
+        borderTopRightRadius={32}
+        // border-top-left-radius: 32px;
+
+        // border-top-right-radius: 32px;
+        zIndex={2}
+      />
     </div>
   );
 };

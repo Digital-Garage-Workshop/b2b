@@ -18,7 +18,7 @@ import { useState, useEffect } from "react";
 import { useBreakpointValue, border } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
 import { UseApi } from "@/hooks/useApi";
-import { HeaderCategory } from "@/_services";
+import { GetAllCategories, HeaderCategory } from "@/_services";
 import { IconChevronRight, IconX } from "@tabler/icons-react";
 import Link from "next/link";
 
@@ -37,7 +37,7 @@ export const CategoryDrawer = (props: CategoryDrawerProp) => {
   const isMobile = useBreakpointValue({ base: true, md: false });
 
   const [{ data, isLoading }, fetch] = UseApi({
-    service: HeaderCategory,
+    service: GetAllCategories,
   });
 
   useEffect(() => {

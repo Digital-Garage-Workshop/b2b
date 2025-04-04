@@ -78,7 +78,11 @@ export const CategoryFilter: React.FC = () => {
     const search = current.toString();
     const query = search ? `?${search}` : "";
 
-    router.push(`${selectedMainCategoryId}${query}`);
+    // router.push(`${selectedMainCategoryId}${query}`);
+    const newUrl = query
+      ? `${window.location.pathname}?${query}`
+      : window.location.pathname;
+    router.replace(newUrl, { scroll: false });
 
     setSelectedSubCategoryId(subCategoryId);
   };
@@ -133,9 +137,9 @@ export const CategoryFilter: React.FC = () => {
       overflow="auto"
       p={"8px 16px"}
     >
-      <Text fontSize={14} fontWeight={700} py={2}>
+      {/* <Text fontSize={14} fontWeight={700} py={2}>
         Ангилал
-      </Text>
+      </Text> */}
       {categoriesData && categoriesData.length > 0 ? (
         <Accordion
           w="full"

@@ -91,7 +91,10 @@ export const Statistics = (props: PartCategories) => {
         >
           <Text
             variant="h5"
-            color="linear-gradient(180deg, #0B192C 0%, #6F7D90 100%)"
+            background="linear-gradient(180deg, #0B192C 0%, #6F7D90 100%)"
+            color={"transparent"}
+            backgroundClip="text"
+            style={{ WebkitBackgroundClip: "text" }}
           >
             200+
           </Text>
@@ -101,8 +104,12 @@ export const Statistics = (props: PartCategories) => {
         </VStack>
         <VStack py={6} gap={4} borderBottom={`1px solid ${grey200}`}>
           <Text
-            variant="h5"
-            color="linear-gradient(180deg, #0B192C 0%, #6F7D90 100%)"
+            background="linear-gradient(180deg, #0B192C 0%, #6F7D90 100%)"
+            color={"transparent"}
+            backgroundClip="text"
+            style={{ WebkitBackgroundClip: "text" }}
+            fontSize={32}
+            fontWeight={700}
           >
             97%
           </Text>
@@ -113,7 +120,10 @@ export const Statistics = (props: PartCategories) => {
         <VStack py={6} gap={4} borderRight={`1px solid ${grey200}`}>
           <Text
             variant="h5"
-            color="linear-gradient(180deg, #0B192C 0%, #6F7D90 100%)"
+            background="linear-gradient(180deg, #0B192C 0%, #6F7D90 100%)"
+            color={"transparent"}
+            backgroundClip="text"
+            style={{ WebkitBackgroundClip: "text" }}
           >
             34+
           </Text>
@@ -124,7 +134,10 @@ export const Statistics = (props: PartCategories) => {
         <VStack py={6} gap={4}>
           <Text
             variant="h5"
-            color="linear-gradient(180deg, #0B192C 0%, #6F7D90 100%)"
+            background="linear-gradient(180deg, #0B192C 0%, #6F7D90 100%)"
+            color={"transparent"}
+            backgroundClip="text"
+            style={{ WebkitBackgroundClip: "text" }}
           >
             100+
           </Text>

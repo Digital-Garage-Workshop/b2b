@@ -2,12 +2,14 @@
 import { GetProducts } from "@/_services";
 import { CarInfoCard, HorizontalPartCard, PartCard } from "@/components";
 import { UseApi } from "@/hooks";
-import { grey100, grey200, grey50, grey500 } from "@/theme/colors";
+import { grey100, grey200, grey50, grey500, grey600 } from "@/theme/colors";
+import { formatCurrency } from "@/utils";
 import {
   Button,
   Grid,
   GridItem,
   HStack,
+  Image,
   Skeleton,
   Stack,
   Text,
@@ -19,19 +21,21 @@ import {
   IconArrowsSort,
   IconLayoutGridFilled,
   IconMenu2,
-  IconPackage,
+  IconX,
 } from "@tabler/icons-react";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
 export const ProductPagination = () => {
   const [isListView, setListView] = useState(false);
   const [page, setPage] = useState(1);
+  const router = useRouter();
 
   const { categoryid } = useParams() as { categoryid: string };
   const searchParams = useSearchParams();
   const brandno = searchParams?.get("brand") || null;
+  const brandname = searchParams?.get("brandname") || null;
   const carid = searchParams?.get("car") || null;
   const maxprice = searchParams?.get("maxPrice") || null;
   const minprice = searchParams?.get("minPrice") || null;
@@ -48,9 +52,10 @@ export const ProductPagination = () => {
 
   useEffect(() => {
     const fetchProducts = () => {
+      const brands = brandno?.split(",");
       const params = {
         categoryid: currentSubCategory || categoryid,
-        brandno,
+        brandno: brands,
         carid,
         page,
         maxprice,
@@ -75,11 +80,50 @@ export const ProductPagination = () => {
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
-    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const toggleView = (isListMode: boolean) => {
     setListView(isListMode);
+  };
+
+  const handleRemoveBrand = (brandToRemove: string) => {
+    const updatedParams = new URLSearchParams(window.location.search);
+
+    const currentBrandNos = updatedParams.get("brand")?.split(",") || [];
+    const currentBrandNames = updatedParams.get("brandname")?.split(",") || [];
+
+    const indexToRemove = currentBrandNames.findIndex(
+      (name) => name === brandToRemove
+    );
+
+    if (indexToRemove !== -1) {
+      const updatedBrandNos = currentBrandNos.filter(
+        (_, index) => index !== indexToRemove
+      );
+      const updatedBrandNames = currentBrandNames.filter(
+        (_, index) => index !== indexToRemove
+      );
+
+      if (updatedBrandNos.length === 0) {
+        updatedParams.delete("brand");
+        updatedParams.delete("brandname");
+      } else {
+        updatedParams.set("brand", updatedBrandNos.join(","));
+        updatedParams.set("brandname", updatedBrandNames.join(","));
+      }
+
+      const newUrl = `${window.location.pathname}?${updatedParams.toString()}`;
+      router.replace(newUrl, { scroll: false });
+    }
+  };
+
+  const handleRemovePrice = () => {
+    const updatedParams = new URLSearchParams(window.location.search);
+    updatedParams.delete("minPrice");
+    updatedParams.delete("maxPrice");
+
+    const newUrl = `${window.location.pathname}?${updatedParams.toString()}`;
+    router.replace(newUrl, { scroll: false });
   };
 
   const renderPaginationButtons = () => {
@@ -168,9 +212,9 @@ export const ProductPagination = () => {
     return (
       <GridItem colSpan={3}>
         <VStack w="full" py={10} gap={3} alignItems="center" justify="center">
-          <IconPackage size={64} color={grey500} />
+          <Image src="/empty.svg" width={356} height={356} />
           <Text fontSize="lg" fontWeight="medium">
-            Бүтээгдэхүүн олдсонгүй
+            Бүтээгдэхүүн олдсонгүй!
           </Text>
           <Text color={grey500} textAlign="center" maxW={400}>
             Таны хайсан шүүлтүүрээр бүтээгдэхүүн олдсонгүй. Өөр шүүлтүүрээр хайж
@@ -184,7 +228,7 @@ export const ProductPagination = () => {
   return (
     <VStack align="flex-start" gap={6} w="full" minH="100vh">
       {cars && (
-        <Grid w="full" templateColumns="repeat(2, 1fr)" gap={6}>
+        <Grid w="full" templateColumns="repeat(3, 1fr)" gap={6}>
           {cars?.map((car: any, index: number) => (
             <GridItem key={`${index}-${car?.carid}-car`} w="full">
               <CarInfoCard car={car} />
@@ -246,6 +290,38 @@ export const ProductPagination = () => {
           </Stack>
         </HStack>
       </HStack>
+      {/* {brandno ||
+        (maxprice && ( */}
+      <HStack spacing={2}>
+        {brandname?.split(",")?.map((item: string, index: number) => (
+          <HStack
+            key={`${item}-${index}`}
+            p="4px 16px"
+            borderRadius={16}
+            bg={grey100}
+            cursor="pointer"
+          >
+            <Text variant="subtitle3" color={grey600}>
+              {item}
+            </Text>
+            <IconX
+              size={16}
+              cursor="pointer"
+              onClick={() => handleRemoveBrand(item)}
+            />
+          </HStack>
+        ))}
+        {minprice && maxprice && (
+          <HStack p="4px 16px" borderRadius={16} bg={grey100} cursor="pointer">
+            <Text variant="subtitle3" color={grey600}>
+              {formatCurrency(parseInt(minprice))} -
+              {formatCurrency(parseInt(maxprice))}
+            </Text>
+            <IconX size={16} cursor="pointer" onClick={handleRemovePrice} />
+          </HStack>
+        )}
+      </HStack>
+      {/* ))} */}
 
       <Grid
         w="full"

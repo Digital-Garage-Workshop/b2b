@@ -100,12 +100,16 @@ export const Selection = (props: SelectionProps) => {
     const modelData = data as ModelGroup[];
 
     return modelData?.map((group, groupIndex) => (
-      <optgroup key={groupIndex} label={group.groupname}>
+      <optgroup
+        key={groupIndex}
+        label={group.groupname}
+        style={{ fontWeight: 700, fontSize: 14, color: "#98A2B3" }}
+      >
         {group.children?.map((child, childIndex) => (
           <option
             key={`${groupIndex}-${childIndex}`}
             value={child.modelid}
-            style={{ fontWeight: 700, fontSize: 18, color: "#1E1E1E" }}
+            style={{ fontWeight: 700, fontSize: 14, color: "#1E1E1E" }}
           >
             {child.name} ({child.yearstart} - {child.yearend || "..."})
           </option>
@@ -121,7 +125,7 @@ export const Selection = (props: SelectionProps) => {
       <option
         key={index}
         value={item.carid}
-        style={{ fontWeight: 700, fontSize: 18, color: "#1E1E1E" }}
+        style={{ fontWeight: 700, fontSize: 14, color: "#1E1E1E" }}
       >
         {item.carname}
       </option>
@@ -135,7 +139,7 @@ export const Selection = (props: SelectionProps) => {
       <option
         key={index}
         value={item.manuid}
-        style={{ fontWeight: 700, fontSize: 18, color: "#1E1E1E" }}
+        style={{ fontWeight: 700, fontSize: 16, color: "#1E1E1E" }}
       >
         {item.name}
       </option>

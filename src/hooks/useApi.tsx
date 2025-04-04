@@ -111,7 +111,10 @@ export function UseApi<T = any>({ service, params, useAuth }: UseApiProps) {
 
       if (response.success === false) {
         setError(response.message);
+        console.log("zailldaa1");
         if (response?.data) {
+          console.log("zailldaa2");
+
           setErrData(response?.data);
         }
 

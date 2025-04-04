@@ -99,7 +99,12 @@ export const Faq = () => {
             </Button>
           ))}
         </HStack>
-        <Accordion gap={4} allowMultiple w="full">
+        <Accordion
+          gap={4}
+          allowMultiple
+          w="full"
+          transition="height 1s ease-in-out"
+        >
           <VStack gap={4}>
             {faqs?.[selectedId]?.faqs?.map((item: any, index: any) => (
               <AccordionItem
@@ -108,8 +113,9 @@ export const Faq = () => {
                 borderRadius={8}
                 border={`1px solid ${grey200}`}
                 p={"20px 24px"}
-                animation={"ease-in-out"}
-                transitionDuration={"1s"}
+                // animation={"ease-in-out"}
+                // transitionDuration={"4s"}
+                transition="height 1s ease-in-out"
               >
                 <h2>
                   <AccordionButton

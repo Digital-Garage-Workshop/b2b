@@ -47,17 +47,20 @@ export const CarInfoCard = (props: { car: any }) => {
     <HStack
       w="100%"
       border={`1px solid ${isSelected ? primary : grey200}`}
-      p={4}
       borderRadius={8}
       align="flex-start"
       justify={"space-between"}
       cursor="pointer"
       onClick={handleCarClick}
+      alignItems="center"
+      justifyContent="center"
+      h="62px"
+      p="10px 16px"
     >
-      <HStack gap={4} align="flex-start" w={"100%"}>
+      <HStack gap={4} align="center" w={"100%"}>
         <Checkbox isChecked={isSelected} />
-        <VStack ml={2} align="flex-start">
-          <HStack
+        <VStack align="flex-start">
+          {/* <HStack
             borderRadius={3}
             border="1px solid black"
             top={0}
@@ -100,10 +103,10 @@ export const CarInfoCard = (props: { car: any }) => {
                 />
               </svg>
             </Stack>
-          </HStack>
-          <Stack maxW={{ md: "280px", xl: "280px", "2xl": 350 }}>
+          </HStack> */}
+          <Stack maxW={{ md: "120px", xl: "150px", "2xl": 250 }}>
             <Text
-              variant="title2"
+              variant="title3"
               overflow="hidden"
               textOverflow="ellipsis"
               whiteSpace="nowrap"
@@ -111,14 +114,15 @@ export const CarInfoCard = (props: { car: any }) => {
               {car?.manuName} {car?.modelName} {car?.engine}
             </Text>
           </Stack>
-          <HStack>
+          {/* <HStack>
             <Text variant="body3">Аралын дугаар:</Text>
-            <Text variant="body3">{car?.vin || "JTM HX05J604120328"}</Text>
-          </HStack>
+            <Text variant="body3">{car?.vin || ""}</Text>
+          </HStack> */}
         </VStack>
       </HStack>
       <Button
-        variant="ghost"
+        variant="filled"
+        borderRadius="full"
         p="6px"
         onClick={(e) => {
           e.preventDefault();

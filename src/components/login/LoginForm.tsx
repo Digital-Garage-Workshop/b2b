@@ -60,7 +60,7 @@ export const LoginForm = (props: LoginFormProps) => {
       });
     } else {
       return Yup.object({
-        email: Yup.string().required("Имэйл хаягаа заавал оруулна уу!"),
+        email: Yup.string().email().required("Имэйл хаягаа заавал оруулна уу!"),
         password: Yup.string()
           .min(6, "Нууц үг хамгийн багадаа 8 тэмдэгттэй байна")
           .required("Нууц үгээ заавал оруулна уу!"),
@@ -176,7 +176,6 @@ export const LoginForm = (props: LoginFormProps) => {
           </VStack>
 
           <VStack gap={2} w="full">
-            {/* Email Field */}
             <FormControl
               isInvalid={formik.touched.email && !!formik.errors.email}
             >
@@ -187,9 +186,10 @@ export const LoginForm = (props: LoginFormProps) => {
                 <Input
                   name="email"
                   value={formik.values.email}
-                  placeholder="Утасны дугаар / Имэйл хаяг"
+                  placeholder="Имэйл хаяг"
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
+                  type="email"
                 />
               </InputGroup>
               {formik.touched.email && formik.errors.email && (
@@ -199,7 +199,6 @@ export const LoginForm = (props: LoginFormProps) => {
               )}
             </FormControl>
 
-            {/* Password Field */}
             {showPasswordField && (
               <FormControl
                 isInvalid={formik.touched.password && !!formik.errors.password}

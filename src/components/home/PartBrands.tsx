@@ -13,75 +13,16 @@ import {
 import { IconChevronDown } from "@tabler/icons-react";
 import { motion } from "framer-motion";
 import { UseApi } from "@/hooks";
-import { Brands } from "@/_services";
+import { Brands, GetPartBrands } from "@/_services";
 import { useEffect } from "react";
+import Link from "next/link";
 
 type PartCategories = {} & StackProps;
-const data = [
-  { name: "Дугуй", image: "/home/tires.svg" },
-  { name: "Рулийн хүрд", image: "/home/tires.svg" },
-  { name: "Хөдөлгүүр", image: "/home/tires.svg" },
-  { name: "Арын тэнхлэг", image: "/home/tires.svg" },
-  { name: "Гар тормоз", image: "/home/tires.svg" },
-  { name: "Тоормосны диск", image: "/home/tires.svg" },
-  { name: "Гэрлийн чийдэн", image: "/home/tires.svg" },
-  { name: "Радиатор", image: "/home/tires.svg" },
-  { name: "Хурдны хайрцаг", image: "/home/tires.svg" },
-  { name: "Дугуйн обуд", image: "/home/tires.svg" },
-  { name: "Шил арчигч", image: "/home/tires.svg" },
-  { name: "Утааны яндан", image: "/home/tires.svg" },
-  { name: "Моторын таг", image: "/home/tires.svg" },
-  { name: "Шатахууны сав", image: "/home/tires.svg" },
-  { name: "Тэнхлэг", image: "/home/tires.svg" },
-  { name: "Гупер", image: "/home/tires.svg" },
-  { name: "Амортизатор", image: "/home/tires.svg" },
-  { name: "Жолооны хүрд", image: "/home/tires.svg" },
-  { name: "Хажуугийн толь", image: "/home/tires.svg" },
-  { name: "Хурдны заалт", image: "/home/tires.svg" },
-  { name: "Урд их гэрэл", image: "/home/tires.svg" },
-  { name: "Пүрш", image: "/home/tires.svg" },
-  { name: "Ремень", image: "/home/tires.svg" },
-  { name: "Суудлын бүрээс", image: "/home/tires.svg" },
-  { name: "Дотоод гэрэлтүүлэг", image: "/home/tires.svg" },
-  { name: "Тоормосны шингэн", image: "/home/tires.svg" },
-  { name: "Ус шахагч", image: "/home/tires.svg" },
-  { name: "Хурдны хайрцагны тос", image: "/home/tires.svg" },
-  { name: "Генератор", image: "/home/tires.svg" },
-  { name: "Хөдөлгүүрийн ремень", image: "/home/tires.svg" },
-  { name: "Арын гэрэл", image: "/home/tires.svg" },
-  { name: "Түлшний насос", image: "/home/tires.svg" },
-  { name: "Радиаторын таг", image: "/home/tires.svg" },
-  { name: "Гаражийн хаалга", image: "/home/tires.svg" },
-  { name: "Агаар шүүгч", image: "/home/tires.svg" },
-  { name: "Машины түлхүүр", image: "/home/tires.svg" },
-  { name: "Жолоочийн суудал", image: "/home/tires.svg" },
-  { name: "Тоормосны наклад", image: "/home/tires.svg" },
-  { name: "Яндангийн боолт", image: "/home/tires.svg" },
-  { name: "Гар тоормосны татлага", image: "/home/tires.svg" },
-  { name: "Хөргөлтийн сэнс", image: "/home/tires.svg" },
-  { name: "Жолооны насос", image: "/home/tires.svg" },
-  { name: "Гадна толгой", image: "/home/tires.svg" },
-  { name: "Капот", image: "/home/tires.svg" },
-  { name: "Багажны хайрцаг", image: "/home/tires.svg" },
-  { name: "Хяналтын самбар", image: "/home/tires.svg" },
-  { name: "Дамжуулгын гол", image: "/home/tires.svg" },
-  { name: "Тосны шүүр", image: "/home/tires.svg" },
-  { name: "Жолооны дээд гар", image: "/home/tires.svg" },
-];
 
-const images = [
-  "/image.svg",
-  "/whitelogo.svg",
-  "/ridex.svg",
-  "/image.svg",
-  "/whitelogo.svg",
-  "/ridex.svg",
-  "/image.svg",
-];
 export const PartBrands = (props: PartCategories) => {
   const { ...restProps } = props;
   const [{ data: brands, isLoading: brandLoader }, getBrands] = UseApi({
-    service: Brands,
+    service: GetPartBrands,
   });
   const MotionFlex = motion.create(Flex);
 
@@ -98,17 +39,17 @@ export const PartBrands = (props: PartCategories) => {
         <Box overflow="hidden" width="100%" position="relative">
           <MotionFlex
             as="div"
-            width="200%" // Double width for smooth looping
-            animate={{ x: ["0%", "-100%"] }} // Move left continuously
+            width="200%"
+            animate={{ x: ["0%", "-100%"] }}
             transition={{
               ease: "linear",
-              duration: 20, // Adjust speed
+              duration: 20,
               repeat: Infinity,
             }}
             display="flex"
             gap={"15px"}
           >
-            {[...images, ...images].map((src, index) => (
+            {brands?.splice(0, 14)?.map((src: any, index: number) => (
               <Stack
                 flex={1}
                 key={index}
@@ -120,7 +61,9 @@ export const PartBrands = (props: PartCategories) => {
                 boxShadow="0px 1px 4px 0px rgba(25, 33, 61, 0.08)"
               >
                 <Image
-                  src={src}
+                  src={
+                    src?.img?.imgurl400 || src?.img?.imgurl200 || "/globe.svg"
+                  }
                   alt={`slide-${index}`}
                   h={12}
                   objectFit="contain"
@@ -132,17 +75,17 @@ export const PartBrands = (props: PartCategories) => {
         <Box overflow="hidden" width="100%" position="relative">
           <MotionFlex
             as="div"
-            width="200%" // Double width for smooth looping
-            animate={{ x: ["-50%", "50%"] }} // Move left continuously
+            width="200%"
+            animate={{ x: ["-50%", "50%"] }}
             transition={{
               ease: "linear",
-              duration: 20, // Adjust speed
+              duration: 20,
               repeat: Infinity,
             }}
             display="flex"
             gap={"15px"}
           >
-            {[...images, ...images].map((src, index) => (
+            {brands?.splice(0, 14)?.map((src: any, index: number) => (
               <Stack
                 key={index}
                 flex={1}
@@ -154,7 +97,9 @@ export const PartBrands = (props: PartCategories) => {
                 boxShadow="0px 1px 4px 0px rgba(25, 33, 61, 0.08)"
               >
                 <Image
-                  src={src}
+                  src={
+                    src?.img?.imgurl400 || src?.img?.imgurl200 || "/globe.svg"
+                  }
                   alt={`slide-${index}`}
                   h={12}
                   objectFit="contain"
@@ -181,9 +126,11 @@ export const PartBrands = (props: PartCategories) => {
           w={"30%"}
         />
       </VStack>
-      <Button variant="outline" rightIcon={<IconChevronDown />} mt={4}>
-        Бүх брэнд харах
-      </Button>
+      <Link href="/brand">
+        <Button variant="outline" rightIcon={<IconChevronDown />} mt={4}>
+          Бүх брэнд харах
+        </Button>
+      </Link>
     </VStack>
   );
 };

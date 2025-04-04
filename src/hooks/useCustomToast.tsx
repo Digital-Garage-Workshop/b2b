@@ -83,7 +83,8 @@ export const useCustomToast = () => {
           <HStack align="center" spacing={3}>
             {iconMap[type]}
             <Box>
-              <Text fontWeight="bold">{title}</Text> <Text>{description}</Text>{" "}
+              <Text fontWeight="bold">{title}</Text>
+              <Text>{description}</Text>
             </Box>
           </HStack>
         </Box>

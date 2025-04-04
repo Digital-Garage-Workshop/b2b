@@ -51,7 +51,7 @@ export const OrderTrack = ({ orderDetail }: { orderDetail: any }) => {
       align="flex-start"
     >
       <HStack w="ful" gap={6}>
-        <Text variant="h8">#2589</Text>
+        <Text variant="h8">#{orderDetail?.id}</Text>
         <HStack p="2px 8px" bg={success50} borderRadius={8}>
           <IconCheck color={success} size={16} />
           <Text variant="overlineBold" color={success}>
@@ -61,7 +61,7 @@ export const OrderTrack = ({ orderDetail }: { orderDetail: any }) => {
       </HStack>
       <HStack w="full" gap={2}>
         <Text variant="body3">Захиалга хийгдсэн огноо:</Text>
-        <Text variant="subtitle3">2025/10/21 14:20:10</Text>
+        <Text variant="subtitle3">{orderDetail?.date}</Text>
       </HStack>
       <VStack
         gap={0}
@@ -105,7 +105,9 @@ export const OrderTrack = ({ orderDetail }: { orderDetail: any }) => {
                 Digital Garage warehouse, 13920
               </Text>
               <Text variant="subtitle3" color={grey700}>
-                СБД 11-р хороо, Хөгжим бүжиг 13920
+                {orderDetail?.address?.cityname},{" "}
+                {orderDetail?.address?.districtname},{" "}
+                {orderDetail?.address?.teamname}
               </Text>
             </VStack>
           </HStack>

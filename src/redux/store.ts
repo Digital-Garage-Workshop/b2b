@@ -11,6 +11,7 @@ import {
   REGISTER,
 } from "redux-persist";
 import carsReducer from './slices/carSlice'
+import cartreducar from './slices/cartSlice'
 
 
 const persistConfig = {
@@ -24,6 +25,7 @@ const persistConfig = {
 
 const rootReducer = combineReducers({
     cars: carsReducer,
+    cart:cartreducar
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

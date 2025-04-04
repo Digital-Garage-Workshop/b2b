@@ -1,6 +1,7 @@
 "use client";
 import { AddToCart } from "@/_services/user";
 import { UseApi, useCustomToast } from "@/hooks";
+import { addCart } from "@/redux/slices/cartSlice";
 import { grey100, grey700, primary } from "@/theme/colors";
 import { formatCurrency } from "@/utils";
 import {
@@ -9,6 +10,7 @@ import {
   Image,
   Input,
   Modal,
+  ModalCloseButton,
   ModalContent,
   ModalOverlay,
   Stack,
@@ -16,8 +18,9 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { IconMinus, IconPlus, IconShoppingCart } from "@tabler/icons-react";
-import { title } from "process";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 type AddCartModal = {
   isOpen: boolean;
   onClose: () => void;
@@ -29,8 +32,11 @@ type AddCartModal = {
 export const AddCartModal = (props: AddCartModal) => {
   const { isOpen, onClose, product, price, inventory } = props;
   const [total, setTotal] = useState();
-  const [quantity, setQuantity] = useState(2);
+  const [quantity, setQuantity] = useState(4);
+  const [isBuy, setIsBuy] = useState(false);
   const toast = useCustomToast();
+  const dispatch = useDispatch();
+  const router = useRouter();
   const [{ data, isLoading, error, errData, successMessage }, addToCart] =
     UseApi({
       service: AddToCart,
@@ -38,28 +44,48 @@ export const AddCartModal = (props: AddCartModal) => {
     });
 
   const handleAddToCart = () => {
-    if (quantity < 2)
+    if (quantity < 4)
       return toast({
         type: "error",
         title: "Уучлаарай",
-        description: "Та 2-с дээш сэлбэг сагслана уу",
+        description: "Та 4-с дээш сэлбэг сагслана уу",
       });
-    addToCart({ partid: inventory?.partid, quantity: quantity });
+    const formData = new FormData();
+    formData.append("partid[]", inventory?.partid.toString());
+    formData.append("quantity[]", quantity.toString());
+    addToCart(formData);
   };
 
+  const handleBuy = () => {
+    if (quantity < 4)
+      return toast({
+        type: "error",
+        title: "Уучлаарай",
+        description: "Та 4-с дээш сэлбэг сагслана уу",
+      });
+    const formData = new FormData();
+    formData.append("partid[]", inventory?.partid.toString());
+    formData.append("quantity[]", quantity.toString());
+    addToCart(formData);
+
+    setIsBuy(true);
+  };
   useEffect(() => {
     if (error) {
       toast({
         type: "error",
         title: "Уучлаарай",
-        description: errData || "",
+        description: error || "",
       });
     } else if (successMessage) {
+      dispatch(addCart(product));
+
       toast({
         type: "success",
         title: "Амжилттай.",
         description: successMessage || "",
       });
+      if (isBuy) router.push("/cart");
       onClose();
     }
   }, [error, successMessage]);
@@ -68,6 +94,7 @@ export const AddCartModal = (props: AddCartModal) => {
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
       <ModalContent maxW={488} p={6}>
+        <ModalCloseButton />
         <VStack gap={8}>
           <Text variant="h7" textAlign="center" maxW={380}>
             {product?.brandname} {product?.category}
@@ -77,6 +104,8 @@ export const AddCartModal = (props: AddCartModal) => {
               src={
                 product?.images?.imgurl800 ||
                 product?.images?.imgurl400 ||
+                product?.partimages?.[0].imgurl800 ||
+                product?.partimages?.[0].imgurl400 ||
                 "/home/ridex.svg"
               }
               w={181}
@@ -91,7 +120,7 @@ export const AddCartModal = (props: AddCartModal) => {
                   bg="white"
                   cursor="pointer"
                   onClick={() => {
-                    if (quantity > 2) setQuantity((prev) => prev - 1);
+                    if (quantity > 4) setQuantity((prev) => prev - 1);
                   }}
                 >
                   <IconMinus color={primary} size={13} />
@@ -132,7 +161,7 @@ export const AddCartModal = (props: AddCartModal) => {
                 ))}
               </HStack>
               <VStack gap={0} align="flex-start" mt={2}>
-                <Text variant="h5">{formatCurrency(price)}</Text>
+                <Text variant="h5">{formatCurrency(price * quantity)}</Text>
                 <Text fontSize={12} fontWeight={500} color={grey700}>
                   НӨАТ багтсан үнэ
                 </Text>
@@ -141,12 +170,14 @@ export const AddCartModal = (props: AddCartModal) => {
                 <Button
                   variant="outline"
                   leftIcon={<IconShoppingCart />}
-                  isLoading={isLoading}
+                  isLoading={isLoading && !isBuy}
                   onClick={handleAddToCart}
                 >
                   Сагслах
                 </Button>
-                <Button>Худалдан авах</Button>
+                <Button isLoading={isLoading && isBuy} onClick={handleBuy}>
+                  Худалдан авах
+                </Button>
               </HStack>
             </VStack>
           </HStack>

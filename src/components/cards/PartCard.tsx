@@ -1,5 +1,5 @@
 "use client";
-import { grey200, grey800 } from "@/theme/colors";
+import { grey200, grey800, primary } from "@/theme/colors";
 import {
   Button,
   Highlight,
@@ -43,6 +43,7 @@ export const PartCard = (props: PartCard) => {
         border={`1px solid ${grey200}`}
         bg="white"
         w="full"
+        _hover={{ border: `1px solid ${primary}` }}
       >
         <HStack h="28px" w="full" justify="space-between">
           {item.brandlogo && (
@@ -71,7 +72,7 @@ export const PartCard = (props: PartCard) => {
         />
         <VStack gap={2} align="flex-start" w="full">
           <Text variant="subtitle2" color={grey800}>
-            {item.articleid}
+            {item.articleno}
           </Text>
           <Text
             variant="title1"
@@ -88,8 +89,9 @@ export const PartCard = (props: PartCard) => {
             textOverflow="ellipsis"
             overflow="hidden"
             whiteSpace="nowrap"
+            h="22px"
           >
-            Урд тэнхлэгийн тос, Урд тэнхлэгийн тос,йн тосnknlnjknjkm nj kb kn
+            {item.frontattribute || ""}
           </Text>
           <HStack gap={1}>
             <Text variant="body3">Нийт </Text>

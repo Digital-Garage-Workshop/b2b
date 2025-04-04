@@ -55,6 +55,7 @@ export const Offers = (props: { inventories: any; product: any }) => {
         gap={4}
         align="flex-start"
         pos="relative"
+        minH={session ? 100 : 250}
       >
         <Text variant="h8">Саналууд</Text>
         <VStack gap="10px" w="full" filter={session ? "none" : "blur(15px)"}>
@@ -73,7 +74,12 @@ export const Offers = (props: { inventories: any; product: any }) => {
             </VStack>
           ))}
         </VStack>
-        <Button w="full" display={session ? "none" : "flex"} onClick={onOpen}>
+        <Button
+          w="full"
+          display={session ? "none" : "flex"}
+          onClick={onOpen}
+          mt={"auto"}
+        >
           Нэвтрэх
         </Button>
         <Text

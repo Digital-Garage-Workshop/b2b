@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Manrope } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/providers";
+import ProgressLoader from "@/providers/ProgressLoader";
+import { Suspense } from "react";
 
 const manrope = Manrope({
   subsets: ["latin"],
@@ -54,8 +56,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${manrope.className}`}>
-        <Providers>{children}</Providers>
+      <body>
+        <Suspense fallback={<div>Loading...</div>}>
+          <ProgressLoader />
+          <Providers>{children}</Providers>
+        </Suspense>
       </body>
     </html>
   );

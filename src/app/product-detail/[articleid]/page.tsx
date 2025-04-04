@@ -33,7 +33,7 @@ export default function Page() {
   }, []);
 
   return (
-    <VStack w="full" gap={20} pb={110}>
+    <VStack w="full" gap={20} pb={110} mt="54px">
       <BreadCrumb crumbs={[{ path: "Catalogue", href: "" }]} mb={-14} />
       {productDetailLoader ? (
         <HStack w="full" gap={6} align="flex-start">

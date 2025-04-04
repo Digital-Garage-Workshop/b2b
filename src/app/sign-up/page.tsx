@@ -13,7 +13,13 @@ export default function Page() {
   const router = useRouter();
 
   return (
-    <VStack w="100%" minH="100vh" align="center" justify="center">
+    <VStack
+      w="100%"
+      minH="100vh"
+      align="center"
+      justify="center"
+      pos="relative"
+    >
       <VStack
         display={!tag ? "flex" : "none"}
         w={"45%"}
@@ -93,7 +99,14 @@ export default function Page() {
         </Button>
       </VStack>
       <SignUpForm />
-      <HStack w="full" justify="space-between" mt={88} pb={12}>
+      <HStack
+        w="full"
+        justify="space-between"
+        pb={12}
+        pos="absolute"
+        bottom={0}
+        display={!tag ? "flex" : "none"}
+      >
         <Text color={grey600} fontSize={12}>
           © 2023 — Copyright
         </Text>

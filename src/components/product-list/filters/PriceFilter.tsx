@@ -19,8 +19,8 @@ import { useEffect, useState } from "react";
 
 export const PriceFilter = () => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 100000]);
-  const [sliderValue, setSliderValue] = useState<[number, number]>([0, 100000]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 0]);
+  const [sliderValue, setSliderValue] = useState<[number, number]>([0, 0]);
   const searchParams = useSearchParams();
   const params = useParams();
   const router = useRouter();
@@ -46,7 +46,10 @@ export const PriceFilter = () => {
     const params = new URLSearchParams(window.location.search);
     params.set("minPrice", values[0].toString());
     params.set("maxPrice", values[1].toString());
-    router.push(`${window.location.pathname}?${params.toString()}`);
+    const newUrl = params.toString()
+      ? `${window.location.pathname}?${params.toString()}`
+      : window.location.pathname;
+    router.replace(newUrl, { scroll: false });
   };
 
   const handleOpen = async () => {
@@ -59,7 +62,10 @@ export const PriceFilter = () => {
       const newQueryString = searchParams.toString();
 
       if (newQueryString) {
-        router.push(`?${newQueryString}`);
+        const newUrl = newQueryString
+          ? `${window.location.pathname}?${newQueryString}`
+          : window.location.pathname;
+        router.replace(newUrl, { scroll: false });
       } else {
         router.push(window.location.pathname);
       }
@@ -108,6 +114,15 @@ export const PriceFilter = () => {
     }
   }, [prices]);
 
+  useEffect(() => {
+    if (isExpanded) {
+      getPrices({
+        carid: carid,
+        categoryid: currentSubCategory || categoryid,
+      });
+    }
+  }, [currentSubCategory, categoryid]);
+
   return (
     <VStack
       p="8px 16px"
@@ -131,7 +146,7 @@ export const PriceFilter = () => {
       <RangeSlider
         aria-label={["min", "max"]}
         min={prices?.minprice || 0}
-        max={prices?.maxprice || 100000}
+        max={prices?.maxprice || 0}
         step={1000}
         value={sliderValue}
         onChange={handleSliderChange}
