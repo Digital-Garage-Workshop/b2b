@@ -57,8 +57,8 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <Suspense fallback={<div>Loading...</div>}>
-          <ProgressLoader />
+        <Suspense fallback={<div></div>}>
+          {/* <ProgressLoader /> */}
           <Providers>{children}</Providers>
         </Suspense>
       </body>

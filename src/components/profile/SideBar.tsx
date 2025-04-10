@@ -19,6 +19,9 @@ export const SideBar = () => {
     {
       name: "Захиалгууд",
     },
+    {
+      name: "Back Order",
+    },
   ];
 
   return (

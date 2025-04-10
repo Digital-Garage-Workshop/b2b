@@ -102,7 +102,7 @@ export const PartOeNumbers = () => {
     <VStack gap={8} w="100%" display={data?.length ? "flex" : "none"}>
       <VStack gap={2} w="100%" align="flex-start">
         <Text fontSize={24} fontWeight={700} color="#1E1E1E">
-          OE дугаарууд
+          Ориг сэлбэгийн дугаар
         </Text>
         <Text color="#1E1E1E">
           OE лавлах дугаар(ууд) нь оригинал сэлбэгийн дугаартай харьцуулах

@@ -119,7 +119,7 @@ export const SuitableCars = () => {
 
   return (
     <Stack w="full" gap={4}>
-      <Text variant="h7">Дараах машинуудад тохирно</Text>
+      <Text variant="h7">Тохирох автомашинууд</Text>
       <Stack w="full" gap={4} maxH={500} overflow="auto">
         <Accordion
           allowToggle

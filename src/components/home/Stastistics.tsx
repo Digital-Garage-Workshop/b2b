@@ -74,12 +74,9 @@ export const Statistics = (props: PartCategories) => {
     >
       <VStack gap={4} align="flex-start" maxW={347}>
         <Stack w={10} h="3px" bg="#F75B00" />
-        <Text variant="h6">
-          Numbers that <br /> showcase our success
-        </Text>
+        <Text variant="h6">Бидний цар хүрээ</Text>
         <Text>
-          Lorem ipsum dolor sit amet consectetur nunc nunc sit velit eget
-          sollicitudin sit posuere
+          Бид бүгдийн хамтрал авто бизнесийн салбарт шинэ хуудсыг бичиж байна
         </Text>
       </VStack>
       <Grid templateColumns="repeat(2, 1fr)" w={448}>

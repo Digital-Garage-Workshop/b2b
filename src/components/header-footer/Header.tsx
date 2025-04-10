@@ -114,11 +114,21 @@ export const Header = () => {
           />
         </HStack>
         <HStack gap={2} ml={-4}>
-          <Link href="/excel-file-import">
-            <Button variant="outline" leftIcon={<ExelIcon />} px={4} mr={4}>
-              Excel файлаар хайх
-            </Button>
-          </Link>
+          <Button
+            variant="outline"
+            leftIcon={<ExelIcon />}
+            px={4}
+            mr={4}
+            onClick={() => {
+              if (session) {
+                router.push("/excel-file-import");
+              } else {
+                loginOnOpen();
+              }
+            }}
+          >
+            Excel файлаар хайх
+          </Button>
           <Button
             variant="outline"
             onClick={loginOnOpen}

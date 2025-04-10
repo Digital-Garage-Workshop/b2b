@@ -39,6 +39,7 @@ export const ProductPagination = () => {
   const carid = searchParams?.get("car") || null;
   const maxprice = searchParams?.get("maxPrice") || null;
   const minprice = searchParams?.get("minPrice") || null;
+  const sortValue = searchParams?.get("sort") || null;
   const currentSubCategory = searchParams?.get("sub");
   const cars = useSelector((state: { cars: any }) => state.cars.cars);
 
@@ -60,6 +61,7 @@ export const ProductPagination = () => {
         page,
         maxprice,
         minprice,
+        sortValue,
       };
 
       getProducts(params);
@@ -76,6 +78,7 @@ export const ProductPagination = () => {
     currentSubCategory,
     maxprice,
     minprice,
+    sortValue,
   ]);
 
   const handlePageChange = (newPage: number) => {
@@ -123,6 +126,15 @@ export const ProductPagination = () => {
     updatedParams.delete("maxPrice");
 
     const newUrl = `${window.location.pathname}?${updatedParams.toString()}`;
+    router.replace(newUrl, { scroll: false });
+  };
+
+  const sort = (value: string) => {
+    const params = new URLSearchParams(window.location.search);
+    params.set("sort", value.toString());
+    const newUrl = params.toString()
+      ? `${window.location.pathname}?${params.toString()}`
+      : window.location.pathname;
     router.replace(newUrl, { scroll: false });
   };
 
@@ -211,7 +223,7 @@ export const ProductPagination = () => {
   const renderEmptyState = () => {
     return (
       <GridItem colSpan={3}>
-        <VStack w="full" py={10} gap={3} alignItems="center" justify="center">
+        <VStack w="full" gap={3} alignItems="center" justify="center">
           <Image src="/empty.svg" width={356} height={356} />
           <Text fontSize="lg" fontWeight="medium">
             Бүтээгдэхүүн олдсонгүй!
@@ -252,6 +264,9 @@ export const ProductPagination = () => {
               cursor: "pointer",
             }}
             className="selection"
+            onChange={(e) => {
+              sort(e.target.value);
+            }}
           >
             <option value="asc">Asc</option>
             <option value="desc">Desc</option>

@@ -127,7 +127,7 @@ export const TopSellers = () => {
 
   return (
     <VStack w="full" gap={4} align="start" h={700}>
-      <Text variant="h5">Top sellers in your country</Text>
+      <Text variant="h5">Эрэлттэй бүтээгдэхүүнүүд</Text>
 
       <Box pos="relative" w="full" mt={6}>
         <IconButton

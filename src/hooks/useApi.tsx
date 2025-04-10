@@ -75,6 +75,7 @@ export function UseApi<T = any>({ service, params, useAuth }: UseApiProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [pagination, setPagination] = useState<any>(null);
   const [successMessage, setSuccessMessage] = useState<any>(null);
+  const [status, setStatus] = useState(false);
   const toast = useCustomToast();
 
   const fetch = async (body?: any, myConfig?: AxiosRequestConfig) => {
@@ -111,10 +112,8 @@ export function UseApi<T = any>({ service, params, useAuth }: UseApiProps) {
 
       if (response.success === false) {
         setError(response.message);
-        console.log("zailldaa1");
+        setStatus(false);
         if (response?.data) {
-          console.log("zailldaa2");
-
           setErrData(response?.data);
         }
 
@@ -136,6 +135,7 @@ export function UseApi<T = any>({ service, params, useAuth }: UseApiProps) {
         setData(response.data);
         setPagination(response.pagination);
         setSuccessMessage(response.message);
+        setStatus(true);
       }
     } catch (err: any) {
       if (err.response) {
@@ -151,11 +151,16 @@ export function UseApi<T = any>({ service, params, useAuth }: UseApiProps) {
       }
       if (err?.response?.status === 401) {
         signOut({ redirect: true, callbackUrl: "/" });
-        // localStorage.clear();
+
+        const persistRoot = localStorage.getItem("persist:root");
+        localStorage.clear();
+        if (persistRoot) {
+          localStorage.setItem("persist:root", persistRoot);
+        }
         toast({
           type: "warning",
           title: "Системээс гарлаа.",
-          description: "Та дахин нэвтрэн орно уу.",
+          description: "Та нэвтрэн орно уу.",
         });
       }
     } finally {
@@ -171,6 +176,7 @@ export function UseApi<T = any>({ service, params, useAuth }: UseApiProps) {
       pagination,
       errData,
       successMessage,
+      status,
     },
     fetch,
   ] as const;

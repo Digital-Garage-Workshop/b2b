@@ -1,6 +1,6 @@
 "use client";
 import { GetCompanyRegister } from "@/_services";
-import { CreatePayment } from "@/_services/user";
+import { CreatePayment, UpdateCart } from "@/_services/user";
 import { UseApi, useCustomToast } from "@/hooks";
 import { EbarimtIcon } from "@/icons";
 import { grey200, textDefault, warning50, warning600 } from "@/theme/colors";
@@ -39,6 +39,8 @@ export const OrderInfo = ({
   createDataLoader,
   handleCreateData,
   hasInventoryErrors,
+  handleUpdateCard,
+  updateCartLoader,
 }: {
   total: number;
   selectedAddress: string;
@@ -50,7 +52,9 @@ export const OrderInfo = ({
     regNumber: string,
     regData?: any
   ) => void;
+  handleUpdateCard: () => void;
   hasInventoryErrors?: boolean;
+  updateCartLoader?: boolean;
 }) => {
   const [isOrganization, setOrganization] = useState(false);
   const [regNumber, setRegNumber] = useState("");
@@ -180,9 +184,11 @@ export const OrderInfo = ({
               });
             }
           } else {
+            handleUpdateCard();
             router.push("/cart/address");
           }
         }}
+        isLoading={updateCartLoader}
       >
         Үргэлжлүүлэх
       </Button>

@@ -31,9 +31,9 @@ export const PartBrands = (props: PartCategories) => {
   }, []);
 
   return (
-    <VStack w="full" gap={4} align="center" {...restProps}>
+    <VStack w="full" gap={8} align="center" {...restProps}>
       <Stack w={10} h="3px" bg="#F75B00" />
-      <Text variant="h5">Trusted by top-tier teams worldwide</Text>
+      <Text variant="h5">Чанараар баталгаажсан Брэндүүд</Text>
 
       <VStack gap="15px" w="full" pos="relative">
         <Box overflow="hidden" width="100%" position="relative">

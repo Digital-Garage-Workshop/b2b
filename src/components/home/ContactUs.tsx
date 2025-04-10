@@ -74,8 +74,8 @@ export const ContactUs = () => {
     <HStack w="full" gap={4} justify="space-between" pos="relative">
       <VStack gap={4} align="flex-start" maxW={347}>
         <Text variant="h6" maxW={403} fontSize={40}>
-          <Highlight query="think" styles={{ color: primary }}>
-            Let us know what you think!
+          <Highlight query="холбогдох" styles={{ color: primary }}>
+            Бидэнтэй холбогдох
           </Highlight>
         </Text>
         <Text>

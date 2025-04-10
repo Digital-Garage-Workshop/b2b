@@ -1,11 +1,12 @@
 "use client";
-import { grey200, grey600, primary } from "@/theme/colors";
+import { grey100, grey200, grey50, grey600, primary } from "@/theme/colors";
 import {
   Button,
   Divider,
   HStack,
   Radio,
   RadioGroup,
+  Skeleton,
   Stack,
   Text,
   VStack,
@@ -38,7 +39,7 @@ export const SelectLocation = ({
 }) => {
   const [isUb, setIsUb] = useState(true);
 
-  const [showAddressForm, setShowAddressForm] = useState(true);
+  const [showAddressForm, setShowAddressForm] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editingAddressId, setEditingAddressId] = useState(null);
 
@@ -52,7 +53,7 @@ export const SelectLocation = ({
       });
     } else {
       return yup.object({
-        teamid: yup.string().required("Баг сонгоно уу"),
+        province: yup.string().required("Аймаг сонгоно уу"),
         terminal: yup.string().required("Терминал сонгоно уу"),
         phoneNumber: yup.string().required("Утас оруулна уу"),
         moreInfo: yup.string().max(200),
@@ -78,10 +79,12 @@ export const SelectLocation = ({
       useAuth: true,
     });
 
-  const [{ data: delData, isLoading: delloader }, delUserAddress] = UseApi({
-    service: DeleteUserAddress,
-    useAuth: true,
-  });
+  const [{ data: delData, isLoading: delloader, status }, delUserAddress] =
+    UseApi({
+      service: DeleteUserAddress,
+      useAuth: true,
+    });
+
   const formik = useFormik({
     initialValues: {
       phoneNumber: "",
@@ -125,10 +128,48 @@ export const SelectLocation = ({
   }, []);
 
   useEffect(() => {
-    if (userAddress?.length > 0 && !selectedAddress) {
-      setSelectedAddress(userAddress[0].id || "0");
+    if (updateAddressData) {
+      getUserAddress();
+      setShowAddressForm(false);
+      setIsEditing(false);
+      setEditingAddressId(null);
+      formik.resetForm();
+    }
+  }, [updateAddressData]);
+
+  useEffect(() => {
+    if (status) {
+      getUserAddress();
+
+      if (userAddress?.length > 1) {
+        const remainingAddresses = userAddress.filter(
+          (addr: any) => addr.id !== delData.id
+        );
+        if (remainingAddresses.length > 0) {
+          setSelectedAddress(userAddress[0].id.toString() || "0");
+        } else {
+          setSelectedAddress("");
+        }
+      } else {
+        [setSelectedAddress("")];
+      }
+    }
+  }, [status]);
+
+  useEffect(() => {
+    if (userAddress?.length > 0) {
+      if (!selectedAddress) {
+        setSelectedAddress(userAddress[0].id.toString() || "0");
+      }
+      setShowAddressForm(false);
+    } else {
+      setShowAddressForm(true);
     }
   }, [userAddress, selectedAddress]);
+
+  useEffect(() => {
+    if (addAddressData) setShowAddressForm(false);
+  }, [addAddressData]);
 
   const handleAddAddress = () => {
     setShowAddressForm(true);
@@ -163,6 +204,31 @@ export const SelectLocation = ({
     setIsEditing(true);
     setEditingAddressId(address.id);
     setShowAddressForm(true);
+  };
+
+  const handleUpdateAddress = async () => {
+    try {
+      await updateAddress({
+        addressid: formik.values.id,
+        country: isUb ? "city" : "countryside",
+        phone: formik.values.phoneNumber,
+        address: formik.values.moreInfo,
+        cityid: isUb ? "1" : formik.values.province,
+        districtid: formik.values.district,
+        teamid: formik.values.khoroo,
+        terminalid: formik.values.terminal,
+      });
+    } catch (error) {
+      console.error("Error updating address:", error);
+    }
+  };
+
+  const handleDeleteAddress = async (addressId: number | string) => {
+    try {
+      await delUserAddress({ addressid: addressId });
+    } catch (error) {
+      console.error("Error deleting address:", error);
+    }
   };
 
   return (
@@ -227,56 +293,70 @@ export const SelectLocation = ({
           </VStack>
         </HStack>
       </HStack>
-      <Divider />
+      {/* <Divider /> */}
 
-      {userAddress?.length > 0 && (
-        <RadioGroup
-          w="full"
-          value={selectedAddress}
-          onChange={setSelectedAddress}
-        >
-          <VStack w="full" align="flex-start" spacing={4}>
-            {userAddress.map((address: any, index: number) => (
-              <HStack
-                w="full"
-                justify="space-between"
-                key={address.addressid || index}
-              >
-                <HStack gap={4}>
-                  <Radio
-                    value={address.id || index.toString()}
-                    colorScheme="orange"
-                  />
-                  <VStack align="flex-start">
-                    <Text variant="subtitle3">
-                      {address?.cityname},{address?.districtname},
-                      {address?.teamname}
-                    </Text>
-                    <Text variant="body3">{address?.phone}</Text>
-                  </VStack>
+      {userAddressLoader ? (
+        <VStack w="full">
+          <Skeleton
+            w="full"
+            h={"50px"}
+            startColor={grey100}
+            endColor={grey50}
+          />
+          <Skeleton
+            w="full"
+            h={"50px"}
+            startColor={grey100}
+            endColor={grey50}
+          />
+        </VStack>
+      ) : (
+        userAddress?.length > 0 && (
+          <RadioGroup
+            w="full"
+            value={selectedAddress}
+            onChange={(e) => setSelectedAddress(e)}
+          >
+            <VStack w="full" align="flex-start" spacing={4}>
+              {userAddress.map((address: any, index: number) => (
+                <HStack
+                  w="full"
+                  justify="space-between"
+                  key={address.id || index}
+                >
+                  <HStack gap={4}>
+                    <Radio value={address.id.toString()} colorScheme="orange" />
+                    <VStack align="flex-start">
+                      <Text variant="subtitle3">
+                        {address?.cityname},{address?.districtname},
+                        {address?.teamname}
+                      </Text>
+                      <Text variant="body3">{address?.phone}</Text>
+                    </VStack>
+                  </HStack>
+                  <HStack>
+                    <Button
+                      variant="secondary"
+                      leftIcon={<IconEdit size={20} color={grey600} />}
+                      color={grey600}
+                      onClick={() => handleEditAddress(address)}
+                    >
+                      Засах
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      p={"6px"}
+                      borderRadius={"full"}
+                      onClick={() => handleDeleteAddress(address.id)}
+                    >
+                      <IconTrash />
+                    </Button>
+                  </HStack>
                 </HStack>
-                <HStack>
-                  <Button
-                    variant="secondary"
-                    leftIcon={<IconEdit size={20} color={grey600} />}
-                    color={grey600}
-                    onClick={() => handleEditAddress(address)}
-                  >
-                    Засах
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    p={"6px"}
-                    borderRadius={"full"}
-                    onClick={() => delUserAddress({ addressid: address.id })}
-                  >
-                    <IconTrash />
-                  </Button>
-                </HStack>
-              </HStack>
-            ))}
-          </VStack>
-        </RadioGroup>
+              ))}
+            </VStack>
+          </RadioGroup>
+        )
       )}
 
       {showAddressForm && (
@@ -300,16 +380,7 @@ export const SelectLocation = ({
             w="full"
             onClick={() => {
               if (isEditing) {
-                updateAddress({
-                  addressid: formik.values.id,
-                  country: isUb ? "city" : "countryside",
-                  phone: formik.values.phoneNumber,
-                  address: formik.values.moreInfo,
-                  cityid: isUb ? "1" : formik.values.province,
-                  districtid: formik.values.district,
-                  teamid: formik.values.khoroo,
-                  terminalid: formik.values.terminal,
-                });
+                handleUpdateAddress();
               } else {
                 formik.handleSubmit();
               }
@@ -319,9 +390,9 @@ export const SelectLocation = ({
           >
             {isEditing ? "Шинэчлэх" : "Хадгалах"}
           </Button>
-          <Button w="full" variant="outline" onClick={handleCancelAdd}>
+          {/* <Button w="full" variant="outline" onClick={handleCancelAdd}>
             Цуцлах
-          </Button>
+          </Button> */}
         </HStack>
       ) : (
         <Button w="full" onClick={handleAddAddress} variant="navy">

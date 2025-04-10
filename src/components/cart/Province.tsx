@@ -37,7 +37,7 @@ export const Province = ({ formik }: { formik: any }) => {
 
   return (
     <VStack w="full" gap={4}>
-      <Grid w="full" templateColumns="repeat(2, 1fr)" rowGap={4} columnGap={4}>
+      <Grid w="full" templateColumns="repeat(3, 1fr)" rowGap={4} columnGap={4}>
         <VStack gap="6px" align="flex-start">
           <Text variant="subtitle3">
             <Highlight query="*" styles={{ color: "#D92D20" }}>
@@ -105,7 +105,7 @@ export const Province = ({ formik }: { formik: any }) => {
           )}
         </VStack>
 
-        <VStack gap="6px" align="flex-start">
+        {/* <VStack gap="6px" align="flex-start">
           <Text variant="subtitle3">
             <Highlight query="*" styles={{ color: "#D92D20" }}>
               Автобус хөдлөх цаг *
@@ -131,7 +131,7 @@ export const Province = ({ formik }: { formik: any }) => {
               )
             )}
           </Select>
-        </VStack>
+        </VStack> */}
         <VStack gap="6px" align="flex-start">
           <Text variant="subtitle3">
             <Highlight query="*" styles={{ color: "#D92D20" }}>

@@ -1,5 +1,6 @@
 "use client";
 import {
+  BackOrder,
   BreadCrumb,
   Orders,
   PersonalInfo,
@@ -25,8 +26,10 @@ export default function Page() {
             <PersonalInfo />
           ) : sidebar === "Хүргэлтийн хаяг" ? (
             <UserAddresses />
-          ) : (
+          ) : sidebar === "Захиалгууд" ? (
             <Orders />
+          ) : (
+            <BackOrder />
           )}
         </VStack>
       </HStack>

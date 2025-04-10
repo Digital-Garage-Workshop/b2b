@@ -1,13 +1,15 @@
 "use client";
-import { EmptyCart, GetCartProducts } from "@/_services/user";
+import { EmptyCart, GetCartProducts, UpdateCart } from "@/_services/user";
 import {
   BreadCrumb,
   CartProductCard,
+  ConsultModal,
   OrderInfo,
   SelectLocation,
 } from "@/components";
 import { UseApi, useCustomToast } from "@/hooks";
 import { ExelIcon, LongArrow } from "@/icons";
+import { clearCart } from "@/redux/slices/cartSlice";
 import {
   error600,
   grey100,
@@ -23,17 +25,21 @@ import {
   Skeleton,
   Spinner,
   Text,
+  useDisclosure,
   VStack,
 } from "@chakra-ui/react";
 import { IconPackage, IconTrash } from "@tabler/icons-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 
 export default function Page() {
   const [localProducts, setLocalProducts] = useState<any[]>([]);
   const [allTotal, setAllTotal] = useState(0);
   const [selectedAddress, setSelectedAddress] = useState("");
   const toast = useCustomToast();
+  const dispatch = useDispatch();
+  const { isOpen, onClose, onOpen } = useDisclosure();
 
   const [{ data: products, isLoading: productLoader }, getCartProduct] = UseApi(
     {
@@ -50,6 +56,12 @@ export default function Page() {
     useAuth: true,
   });
 
+  const [{ data: updateCartData, isLoading: updateLoader }, updateCart] =
+    UseApi({
+      service: UpdateCart,
+      useAuth: true,
+    });
+
   useEffect(() => {
     if (products) {
       setLocalProducts(products);
@@ -64,6 +76,8 @@ export default function Page() {
         title: "Амжилттай",
         description: successMessage || "",
       });
+      onClose();
+      dispatch(clearCart());
     }
   }, [emptyCartData, successMessage]);
 
@@ -75,7 +89,6 @@ export default function Page() {
 
       setAllTotal(total);
     } else {
-      // If there are no products, set total to 0
       setAllTotal(0);
     }
   }, [localProducts]);
@@ -85,8 +98,17 @@ export default function Page() {
   }, []);
 
   const handleEmptyCart = () => {
-    // setLocalProducts([]);
     emptyCart();
+  };
+
+  const handleUpdateCard = () => {
+    const formdata = new FormData();
+    localProducts.map((product: any) => {
+      formdata.append("partid[]", product?.partid);
+      formdata.append("quantity[]", product?.quantity);
+    });
+
+    updateCart(formdata);
   };
 
   return (
@@ -128,13 +150,10 @@ export default function Page() {
                 p={0}
                 cursor="pointer"
                 display={localProducts?.length > 0 ? "flex" : "none"}
-                onClick={handleEmptyCart}
+                onClick={onOpen}
               >
-                {emptyCartLoader ? (
-                  <Spinner size="sm" colorScheme={primary} color={primary} />
-                ) : (
-                  <IconTrash color={error600} size={20} />
-                )}
+                <IconTrash color={error600} size={20} />
+
                 <Text variant="body2" color={error600}>
                   Бүгдийг нь устгах
                 </Text>
@@ -182,12 +201,18 @@ export default function Page() {
             ) : localProducts?.length > 0 ? (
               localProducts?.map((product, index) => {
                 return (
-                  <CartProductCard
-                    data={product}
+                  <Link
+                    href={`/product-detail/${product?.articleid}`}
+                    target="_blank"
                     key={index}
-                    setLocalProducts={setLocalProducts}
-                    setAllTotal={setAllTotal}
-                  />
+                    style={{ width: "100%" }}
+                  >
+                    <CartProductCard
+                      data={product}
+                      setLocalProducts={setLocalProducts}
+                      setAllTotal={setAllTotal}
+                    />
+                  </Link>
                 );
               })
             ) : (
@@ -222,6 +247,19 @@ export default function Page() {
             regNumber: string,
             regData?: any
           ) => {}}
+          handleUpdateCard={handleUpdateCard}
+          updateCartLoader={updateLoader}
+        />
+        <ConsultModal
+          iconBg="#FEF3F2"
+          icon={<IconTrash color="#D92D20" size={28} />}
+          isOpen={isOpen}
+          onClose={onClose}
+          buttonStr="Хоослох"
+          buttonLoader={emptyCartLoader}
+          buttonAction={handleEmptyCart}
+          title="Та сагсаа хоослохдоо итгэлтэй байна уу?"
+          desc="Таны сагсалсан бүтээгдэхүүнүүд сагснаас устгагдах бөгөөд худалдан авалт хийхийн тулд ахин бүтээгдэхүүнээ сагслах шаардлагатайг анхаарна уу"
         />
       </HStack>
     </VStack>

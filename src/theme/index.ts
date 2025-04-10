@@ -227,9 +227,15 @@ const theme = extendTheme({
             fontSize:'12px',
             fontWeight:'400',
             color:'#1E1E1E'
-          },   overlineBold:{
+          },   
+          overlineBold:{
             fontSize:'12px',
             fontWeight:'700',
+            color:'#1E1E1E'
+          },
+          overline:{
+            fontSize:'12px',
+            fontWeight:'500',
             color:'#1E1E1E'
           },
           buttonsm:{

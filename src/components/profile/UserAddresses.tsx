@@ -5,6 +5,7 @@ import { grey100, grey50, grey500, grey600 } from "@/theme/colors";
 import {
   Button,
   HStack,
+  Image,
   Skeleton,
   Text,
   useDisclosure,
@@ -153,10 +154,10 @@ export const UserAddresses = () => {
           ))}
         </VStack>
       ) : (
-        <VStack w="full" py={10} gap={3} alignItems="center" justify="center">
-          <IconPackage size={64} color={grey500} />
+        <VStack w="full" gap={3} alignItems="center" justify="center">
+          <Image src="/empty.svg" width={356} height={356} />
           <Text fontSize="lg" fontWeight="medium">
-            Хаяг олдсонгүй
+            Хаяг олдсонгүй!
           </Text>
           <Text color={grey500} textAlign="center" maxW={400}>
             Танд хадгалсан хаяг одоогоор байхгүй байна.
