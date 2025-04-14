@@ -9,7 +9,7 @@ export async function middleware(req:NextRequest) {
   });
 
 
-  const protectedRoutes = ['/cart','/profile','/payment'];
+  const protectedRoutes = ['/cart','/profile','/payment','/excel-file-import'];
   const isProtectedRoute = protectedRoutes.some(route => 
     req.nextUrl.pathname.startsWith(route)
   );
@@ -25,5 +25,5 @@ export async function middleware(req:NextRequest) {
 }
 
 export const config = {
-  matcher: ['/profile/:path*','/cart/:path*', '/payment/:path*' ]
+  matcher: ['/profile/:path*','/cart/:path*', '/payment/:path*','/excel-file-import/:path*' ]
 }

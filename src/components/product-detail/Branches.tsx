@@ -25,7 +25,15 @@ export const Branches = (props: { product: any; branch: any }) => {
   } = useDisclosure();
   return (
     <HStack w="full" pos="relative" justify="space-between">
-      <Text variant="overlineBold">{branch.organization}</Text>
+      <Text
+        variant="overlineBold"
+        maxW={12}
+        overflow="hidden"
+        textOverflow="ellipsis"
+        whiteSpace="nowrap"
+      >
+        {branch.organization}
+      </Text>
       <HStack gap={1}>
         {[1, 2, 3, 4, 5].map((blocks) => (
           <Stack

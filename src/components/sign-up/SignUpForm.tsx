@@ -185,6 +185,7 @@ export const SignUpForm = () => {
           title: "Амжилттай!",
           description: "Таны И-Мэйлд баталгаажуулах линк илгээлээ.",
         });
+        router.push(`/verification-pending?mail=${values.email}`);
       } catch (error: any) {
         toast({
           type: "error",

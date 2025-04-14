@@ -74,13 +74,14 @@ export const CategoryFilter: React.FC = () => {
     current.delete("brand");
     current.delete("maxPrice");
     current.delete("minPrice");
+    current.delete("sort");
 
     const search = current.toString();
     const query = search ? `?${search}` : "";
 
     // router.push(`${selectedMainCategoryId}${query}`);
     const newUrl = query
-      ? `${window.location.pathname}?${query}`
+      ? `${window.location.pathname}${query}`
       : window.location.pathname;
     router.replace(newUrl, { scroll: false });
 

@@ -1,6 +1,7 @@
 "use client";
 import { AddToCart, DeleteFromCart } from "@/_services/user";
 import { UseApi, useCustomToast } from "@/hooks";
+import { removeCart } from "@/redux/slices/cartSlice";
 import {
   error600,
   grey100,
@@ -20,6 +21,7 @@ import {
   VStack,
   Tooltip,
   Spinner,
+  Checkbox,
 } from "@chakra-ui/react";
 import {
   IconAlertCircle,
@@ -27,7 +29,15 @@ import {
   IconPlus,
   IconTrash,
 } from "@tabler/icons-react";
-import { useState, useEffect, Dispatch, SetStateAction, useRef } from "react";
+import {
+  useState,
+  useEffect,
+  Dispatch,
+  SetStateAction,
+  useRef,
+  MouseEvent,
+} from "react";
+import { useDispatch } from "react-redux";
 
 export interface Product {
   partid: number;
@@ -55,6 +65,7 @@ interface CartProductCardProps {
   setLocalProducts: Dispatch<SetStateAction<Product[]>>;
   setAllTotal: Dispatch<SetStateAction<number>>;
   inventoryErrors?: InventoryError[];
+  isAddressCard?: boolean;
 }
 
 export const CartProductCard = ({
@@ -62,12 +73,14 @@ export const CartProductCard = ({
   data,
   setLocalProducts,
   setAllTotal,
+  isAddressCard,
   inventoryErrors = [],
 }: CartProductCardProps) => {
   const [quantity, setQuantity] = useState(data?.quantity || 0);
   const [totalPrice, setTotalPrice] = useState(data?.price * quantity || 0);
   const [isUpdating, setIsUpdating] = useState(false);
   const toast = useCustomToast();
+  const dispatch = useDispatch();
   const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const inventoryError = inventoryErrors?.find(
@@ -80,12 +93,6 @@ export const CartProductCard = ({
   const hasQuantityError =
     inventoryError && quantity > (availableQuantity || 0);
 
-  const [{ data: updateCartData, isLoading: updateCartLoading }, updateCart] =
-    UseApi({
-      service: AddToCart,
-      useAuth: true,
-    });
-
   const [
     { data: deleteData, isLoading: deleteLoader, successMessage },
     deleteProduct,
@@ -94,33 +101,11 @@ export const CartProductCard = ({
     useAuth: true,
   });
 
-  const updateCartWithCurrentQuantity = () => {
-    setIsUpdating(true);
-
-    const formData = new FormData();
-    formData.append("partid[]", data?.partid.toString());
-    formData.append("quantity[]", quantity.toString());
-    updateCart(formData)
-      .then(() => {
-        toast({
-          type: "success",
-          title: "Сагс шинэчлэгдлээ",
-          description: "Бүтээгдэхүүний тоо хэмжээ шинэчлэгдлээ.",
-        });
-      })
-      .catch((err) => {
-        toast({
-          type: "error",
-          title: "Алдаа гарлаа",
-          description: "Сагсыг шинэчлэхэд алдаа гарлаа.",
-        });
-      })
-      .finally(() => {
-        setIsUpdating(false);
-      });
-  };
-
-  const handleDeleteProduct = () => {
+  const handleDeleteProduct = (
+    e: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
     deleteProduct({ basketid: data?.userbasketid });
     setLocalProducts((prev) =>
       prev.filter((item) => item.userbasketid !== data?.userbasketid)
@@ -131,22 +116,28 @@ export const CartProductCard = ({
   const handleQuantityChange = (newQuantity: number) => {
     const validQuantity = Math.max(0, newQuantity);
     setQuantity(validQuantity);
-
-    if (inventoryError && validQuantity <= (availableQuantity || 4)) {
-      updateCartWithCurrentQuantity();
-    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
     const newValue = parseInt(e.target.value) || 0;
     handleQuantityChange(newValue);
   };
 
-  const handleIncrement = () => {
+  const handleIncrement = (
+    e: MouseEvent<HTMLDivElement, globalThis.MouseEvent>
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
     handleQuantityChange(quantity + 1);
   };
 
-  const handleDecrement = () => {
+  const handleDecrement = (
+    e: MouseEvent<HTMLDivElement, globalThis.MouseEvent>
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
     if (quantity > 4) {
       handleQuantityChange(quantity - 1);
     }
@@ -184,6 +175,7 @@ export const CartProductCard = ({
         title: "Амжилттай",
         description: successMessage || "",
       });
+    dispatch(removeCart(data?.articleid));
   }, [successMessage]);
 
   return (
@@ -239,7 +231,7 @@ export const CartProductCard = ({
             objectFit={"contain"}
           />
           <Text variant="subtitle2">{data?.articleno}</Text>
-          <Text variant="title1">
+          <Text variant="title2">
             {data?.brandname}
             {data?.partname}
           </Text>
@@ -252,88 +244,106 @@ export const CartProductCard = ({
           </Text>
         </VStack>
       </HStack>
-      <VStack justify="space-between" align="flex-end">
+      <Stack
+        justify="space-between"
+        w="40%"
+        align={isStatic ? "flex-end" : "center"}
+        flexDir={isStatic ? "column" : "row"}
+      >
+        <VStack align="flex-start" gap={6}>
+          <HStack
+            flexDir={isStatic ? "column" : "row"}
+            align={isStatic ? "flex-end" : "center"}
+          >
+            <HStack
+              borderRadius={16}
+              p="0px 6px"
+              bg={grey100}
+              border={hasQuantityError ? `1px solid ${error600}` : "none"}
+              display={isStatic || isAddressCard ? "none" : "flex"}
+              h="22px"
+            >
+              <Stack
+                p={1}
+                borderRadius="full"
+                bg="white"
+                cursor="pointer"
+                onClick={handleDecrement}
+              >
+                <IconMinus color={primary} size={10} />
+              </Stack>
+              <Input
+                value={quantity}
+                onChange={handleInputChange}
+                variant="ghost"
+                maxW="26px"
+                alignItems={"center"}
+                textAlign="center"
+                h={"22px"}
+                fontSize={14}
+                p={0}
+                color={hasQuantityError ? error600 : "inherit"}
+              />
+              <Stack
+                p={1}
+                borderRadius="full"
+                bg="white"
+                cursor="pointer"
+                onClick={handleIncrement}
+              >
+                <IconPlus color={primary} size={10} />
+              </Stack>
+            </HStack>
+            <Text
+              display={isStatic || isAddressCard ? "flex" : "none"}
+              bg={grey100}
+              borderRadius={16}
+              variant={isAddressCard ? "subtitle2" : "subtitle1"}
+              px={2}
+            >
+              {data?.quantity}ш
+            </Text>
+            <VStack gap={0} align="flex-end">
+              <Text variant="title1">{formatCurrency(totalPrice)}</Text>
+              <Text
+                fontSize={12}
+                color={grey700}
+                display={isStatic ? "flex" : "none"}
+              >
+                НӨАТ багтсан үнэ
+              </Text>
+            </VStack>
+          </HStack>
+          {data?.miss_quantity && (
+            <HStack display={isStatic ? "none" : "flex"}>
+              <Checkbox w={4} h={4} />
+              <Text fontSize={12}>Дараа захиалах</Text>
+              <Text
+                bg={grey100}
+                borderRadius={16}
+                p="0px 8px"
+                variant="subtitle2"
+              >
+                {data?.miss_quantity} ш
+              </Text>
+            </HStack>
+          )}
+        </VStack>
         <Button
-          p={2}
+          p="6px"
           variant="filled"
           borderRadius="full"
           display={isStatic ? "none" : "flex"}
           onClick={handleDeleteProduct}
-          isDisabled={updateCartLoading || isUpdating}
+          isDisabled={isUpdating}
+          // onClick={(e)=>{}}
           isLoading={deleteLoader}
+          w={8}
+          h={8}
         >
-          <IconTrash color={grey600} />
+          <IconTrash color={grey600} size={20} />
         </Button>
-
-        <HStack
-          p={1}
-          borderRadius={16}
-          bg={grey100}
-          border={hasQuantityError ? `1px solid ${error600}` : "none"}
-          display={isStatic ? "none" : "flex"}
-        >
-          <Stack
-            p={1}
-            borderRadius="full"
-            bg="white"
-            cursor="pointer"
-            onClick={handleDecrement}
-            opacity={updateCartLoading || isUpdating ? 0.5 : 1}
-            pointerEvents={updateCartLoading || isUpdating ? "none" : "auto"}
-          >
-            <IconMinus color={primary} size={13} />
-          </Stack>
-          <Input
-            value={quantity}
-            onChange={handleInputChange}
-            onBlur={() => {
-              // Update cart when input loses focus if there's no error
-              if (!hasQuantityError) {
-                updateCartWithCurrentQuantity();
-              }
-            }}
-            variant="ghost"
-            maxW="30px"
-            alignItems={"center"}
-            textAlign="center"
-            h={6}
-            p={0}
-            color={hasQuantityError ? error600 : "inherit"}
-            isDisabled={updateCartLoading || isUpdating}
-          />
-          <Stack
-            p={1}
-            borderRadius="full"
-            bg="white"
-            cursor="pointer"
-            onClick={handleIncrement}
-            opacity={updateCartLoading || isUpdating ? 0.5 : 1}
-            pointerEvents={updateCartLoading || isUpdating ? "none" : "auto"}
-          >
-            <IconPlus color={primary} size={13} />
-          </Stack>
-        </HStack>
-        <Text
-          display={isStatic ? "flex" : "none"}
-          bg={grey100}
-          borderRadius={16}
-          variant="subtitle1"
-          px={2}
-        >
-          {data?.quantity}ш
-        </Text>
-        <VStack gap={0} align="flex-end">
-          <Text variant="h8">{formatCurrency(totalPrice)}</Text>
-          <Text fontSize={12} fontWeight={500} color={grey700}>
-            НӨАТ багтсан үнэ
-          </Text>
-          {(updateCartLoading || isUpdating) && (
-            <Text fontSize="xs" color="blue.500">
-              Шинэчилж байна...
-            </Text>
-          )}
-        </VStack>
-      </VStack>
+      </Stack>
     </HStack>
   );
 };

@@ -53,7 +53,7 @@ export const AddUserAddressModal = ({
       });
     } else {
       return yup.object({
-        teamid: yup.string().required("Баг сонгоно уу"),
+        province: yup.string().required("Аймаг сонгоно уу"),
         terminal: yup.string().required("Терминал сонгоно уу"),
         phoneNumber: yup.string().required("Утас оруулна уу"),
         moreInfo: yup.string().max(200),

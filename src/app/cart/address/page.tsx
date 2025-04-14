@@ -1,8 +1,14 @@
 "use client";
 import { CreatePayment, EmptyCart, GetCartProducts } from "@/_services/user";
-import { CartProductCard, OrderInfo, SelectLocation } from "@/components";
+import {
+  CartProductCard,
+  ConsultModal,
+  OrderInfo,
+  SelectLocation,
+} from "@/components";
 import { UseApi, useCustomToast } from "@/hooks";
 import { ExelIcon, LongArrow } from "@/icons";
+import { clearCart } from "@/redux/slices/cartSlice";
 import { error600, grey200, grey500 } from "@/theme/colors";
 import {
   Button,
@@ -13,11 +19,13 @@ import {
   Alert,
   AlertIcon,
   Box,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { IconTrash } from "@tabler/icons-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 
 export default function Page() {
   const [localProducts, setLocalProducts] = useState<any[]>([]);
@@ -26,6 +34,8 @@ export default function Page() {
   const [inventoryErrors, setInventoryErrors] = useState<any>([]);
   const toast = useCustomToast();
   const router = useRouter();
+  const dispatch = useDispatch();
+  const { isOpen, onClose, onOpen } = useDisclosure();
 
   const [{ data: products, isLoading: productLoader }, getCartProduct] = UseApi(
     {
@@ -34,11 +44,17 @@ export default function Page() {
     }
   );
 
-  const [{ data: emptyCartData, isLoading: emptyCartLoader }, emptyCart] =
-    UseApi({
-      service: EmptyCart,
-      useAuth: true,
-    });
+  const [
+    {
+      data: emptyCartData,
+      isLoading: emptyCartLoader,
+      successMessage: emptySuccess,
+    },
+    emptyCart,
+  ] = UseApi({
+    service: EmptyCart,
+    useAuth: true,
+  });
 
   const [
     {
@@ -87,15 +103,14 @@ export default function Page() {
   }, [createPaymentData]);
 
   useEffect(() => {
-    if (errData && Array.isArray(errData)) {
-      setInventoryErrors(errData);
-
-      if (error) {
-        toast({
-          type: "error",
-          title: "Үлдэгдэл хүрэлцэхгүй",
-          description: error,
-        });
+    if (error) {
+      toast({
+        type: "error",
+        title: "Уучлаарай",
+        description: error,
+      });
+      if (errData && Array.isArray(errData)) {
+        setInventoryErrors(errData);
       }
     } else {
       setInventoryErrors([]);
@@ -108,11 +123,23 @@ export default function Page() {
     }
   }, [products]);
 
+  // useEffect(() => {
+  //   if (emptyCartData) {
+  //     setLocalProducts([]);
+  //   }
+  // }, [emptyCartData]);
   useEffect(() => {
-    if (emptyCartData) {
+    if (emptySuccess) {
       setLocalProducts([]);
+      toast({
+        type: "success",
+        title: "Амжилттай",
+        description: emptySuccess || "",
+      });
+      onClose();
+      dispatch(clearCart());
     }
-  }, [emptyCartData]);
+  }, [emptyCartData, emptySuccess]);
 
   useEffect(() => {
     if (localProducts && localProducts.length > 0) {
@@ -190,18 +217,18 @@ export default function Page() {
               <HStack gap={4}>
                 <Text variant="h8">Сагс</Text>
                 <Text variant="subtitle2" color={grey500}>
-                  {localProducts?.length || 0} items
+                  {localProducts?.length || 0} бүтээгдэхүүн
                 </Text>
               </HStack>
               <HStack
                 p={0}
                 cursor="pointer"
                 display={localProducts?.length > 0 ? "flex" : "none"}
-                onClick={handleEmptyCart}
+                onClick={onOpen}
               >
                 <IconTrash color={error600} size={20} />
                 <Text variant="body2" color={error600}>
-                  Remove all
+                  Бүгдийг устгах
                 </Text>
               </HStack>
             </HStack>
@@ -216,13 +243,21 @@ export default function Page() {
             {localProducts?.length > 0 ? (
               localProducts?.map((product, index) => {
                 return (
-                  <CartProductCard
-                    data={product}
+                  <Link
+                    href={`/product-detail/${product?.articleid}`}
+                    target="_blank"
                     key={index}
-                    setLocalProducts={setLocalProducts}
-                    setAllTotal={setAllTotal}
-                    inventoryErrors={inventoryErrors}
-                  />
+                    style={{ width: "100%" }}
+                  >
+                    <CartProductCard
+                      data={product}
+                      key={index}
+                      setLocalProducts={setLocalProducts}
+                      setAllTotal={setAllTotal}
+                      inventoryErrors={inventoryErrors}
+                      isAddressCard={true}
+                    />
+                  </Link>
                 );
               })
             ) : (
@@ -253,6 +288,18 @@ export default function Page() {
           createDataLoader={createDataLoader}
           handleCreateData={handleCreateData}
           hasInventoryErrors={hasInventoryErrors}
+          handleUpdateCard={() => {}}
+        />
+        <ConsultModal
+          iconBg="#FEF3F2"
+          icon={<IconTrash color="#D92D20" size={28} />}
+          isOpen={isOpen}
+          onClose={onClose}
+          buttonStr="Хоослох"
+          buttonLoader={emptyCartLoader}
+          buttonAction={handleEmptyCart}
+          title="Та сагсаа хоослохдоо итгэлтэй байна уу?"
+          desc="Таны сагсалсан бүтээгдэхүүнүүд сагснаас устгагдах бөгөөд худалдан авалт хийхийн тулд ахин бүтээгдэхүүнээ сагслах шаардлагатайг анхаарна уу"
         />
       </HStack>
     </VStack>

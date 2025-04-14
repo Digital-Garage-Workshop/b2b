@@ -131,14 +131,14 @@ export const SuggestedParts = () => {
       <Stack backgroundImage={"/decoration.svg"} h={201} w={236} />
       <VStack w="full" pos="absolute" top={0} h={201}>
         <Stack w={10} h="3px" bg="#F75B00" />
-        <Text variant="h5">Discover a world of products</Text>
+        <Text variant="h5">Эрэлттэй бүтээгдэхүүнүүд</Text>
         <Text maxW={564} textAlign="center" color={grey600} variant="body1">
-          Lorem ipsum dolor sit amet consectetur adipiscing elit tortor eu
-          egestas morbi sem vulputate etiam facilisis.
+          Худалдан авалтын тоогоор Garage B2B платформ дээр тэргүүлж буй
+          бүтээгдэхүүнүүд
         </Text>
       </VStack>
 
-      <Box pos="relative" w="full" mt={6}>
+      <Box pos="absolute" w="full" mt={170}>
         <IconButton
           variant={"outline"}
           aria-label="Previous"

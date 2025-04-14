@@ -36,11 +36,12 @@ export const MainSearch = () => {
       <VStack gap={6} pos={"absolute"}>
         <Text fontSize={48} fontWeight={700}>
           <Highlight query="Digital Garage" styles={{ color: "#F75B00" }}>
-            Grow your business with Digital Garage
+            Digital Garage-тай хамт бизнесээ тэлээрэй
           </Highlight>
         </Text>
-        <Text color={grey600} mt={-2}>
+        <Text color={grey600} mt={-2} textAlign="center">
           Дижитал Гараж B2B – авто засвар, сэлбэгийн бизнесүүдэд зориулсан
+          <br />
           захиалга, нийлүүлэлт, менежментийн нэгдсэн платформ.
         </Text>
         <InputGroup maxW={494}>

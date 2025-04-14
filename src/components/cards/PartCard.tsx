@@ -83,16 +83,17 @@ export const PartCard = (props: PartCard) => {
           >
             {item.brandname} {item.category}
           </Text>
-          <Text
-            variant="body3"
-            w="224px"
-            textOverflow="ellipsis"
-            overflow="hidden"
-            whiteSpace="nowrap"
-            h="22px"
-          >
-            {item.frontattribute || ""}
-          </Text>
+          {item?.frontattribute && (
+            <Text
+              variant="body3"
+              w="224px"
+              textOverflow="ellipsis"
+              overflow="hidden"
+              whiteSpace="nowrap"
+            >
+              {item.frontattribute}
+            </Text>
+          )}
           <HStack gap={1}>
             <Text variant="body3">Нийт </Text>
             <Text variant="body3" fontWeight={700}>
@@ -101,22 +102,26 @@ export const PartCard = (props: PartCard) => {
             <Text variant="body3">машинд тохирно</Text>
           </HStack>
 
-          {item?.warranty && (
-            <Text variant="body3">
-              <Highlight
-                query="Баталгаат хугацаа:"
-                styles={{ fontWeight: 700 }}
-              >
-                Баталгаат хугацаа: 3 жил
-              </Highlight>
+          {/* {item?.warranty && ( */}
+          <HStack gap={1}>
+            <Text variant="body3" fontWeight={700}>
+              Баталгаат хугацаа:
             </Text>
-          )}
+            <Text variant="body3">
+              {item?.warranty ? item?.warranty : "Байхгүй"}
+            </Text>
+            <Text variant="body3" display={item?.warranty ? "flex" : "none"}>
+              жил
+            </Text>
+          </HStack>
+
+          {/* // )} */}
         </VStack>
         <VStack
           gap="10px"
           w="full"
           filter={session ? "none" : "blur(5px)"}
-          minH={142}
+          minH={item?.frontattribute ? 142 : 171}
         >
           <HStack w="full" gap={0}>
             <Text w={"22%"} variant="caption" textAlign={"start"}>

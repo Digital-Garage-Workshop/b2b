@@ -1,13 +1,15 @@
 "use client";
 import { GetOrders, GetUserAddresses } from "@/_services/user";
 import { UseApi } from "@/hooks";
-import { grey100, grey200, grey500, primary } from "@/theme/colors";
+import { grey100, grey200, grey50, grey500, primary } from "@/theme/colors";
 import {
   Button,
   HStack,
+  Image,
   Input,
   InputGroup,
   InputLeftElement,
+  Skeleton,
   Text,
   VStack,
 } from "@chakra-ui/react";
@@ -135,120 +137,161 @@ export const Orders = () => {
           </Button>
         ))}
       </HStack>
-
-      <Table style={{ border: "1px solid #F2F4F7" }}>
-        <TableHeader
-          style={{
-            background: "#F2F4F7",
-            borderTopLeftRadius: 8,
-            borderTopRightRadius: 8,
-            padding: "10px 16px",
-            width: "100%",
-          }}
-        >
-          <TableRow
+      {orderLoader ? (
+        <VStack w="full">
+          <Skeleton w="full" startColor={grey100} endColor={grey50} h={20} />
+          <Skeleton w="full" startColor={grey100} endColor={grey50} h={20} />
+          <Skeleton w="full" startColor={grey100} endColor={grey50} h={20} />
+          <Skeleton w="full" startColor={grey100} endColor={grey50} h={20} />
+        </VStack>
+      ) : orders?.length > 0 ? (
+        <Table style={{ border: "1px solid #F2F4F7" }}>
+          <TableHeader
             style={{
               background: "#F2F4F7",
+              borderTopLeftRadius: 8,
+              borderTopRightRadius: 8,
+              padding: "10px 16px",
               width: "100%",
             }}
           >
-            <TableHead
-              className="w-[100px]"
-              style={{ padding: "10px 16px", fontSize: 14, fontWeight: 600 }}
-            >
-              Захиалгийн дугаар
-            </TableHead>
-            <TableHead
-              style={{ padding: "10px 16px", fontSize: 14, fontWeight: 600 }}
-            >
-              Захиалгийн хийсэн өдөр
-            </TableHead>
-            <TableHead
-              style={{ padding: "10px 16px", fontSize: 14, fontWeight: 600 }}
-            >
-              Дүн
-            </TableHead>
-            <TableHead
-              style={{ padding: "10px 16px", fontSize: 14, fontWeight: 600 }}
-            >
-              Төлөв
-            </TableHead>
-            <TableHead />
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {orders?.map((order: any) => (
             <TableRow
-              key={order.id}
               style={{
-                padding: "10px 16px",
-                fontSize: 14,
-                fontWeight: 600,
-                borderBottom: "1px solid #F2F4F7",
+                background: "#F2F4F7",
+                width: "100%",
               }}
             >
-              <TableCell
+              <TableHead
+                className="w-[100px]"
                 style={{ padding: "10px 16px", fontSize: 14, fontWeight: 600 }}
               >
-                #{order?.id}
-              </TableCell>
-              <TableCell
-                style={{ padding: "10px 16px", fontSize: 14, fontWeight: 400 }}
-              >
-                {order?.created}
-              </TableCell>
-
-              <TableCell
+                Захиалгийн дугаар
+              </TableHead>
+              <TableHead
                 style={{ padding: "10px 16px", fontSize: 14, fontWeight: 600 }}
               >
-                {formatCurrency(order?.totalamount)}
-              </TableCell>
-              <TableCell
+                Захиалгийн хийсэн өдөр
+              </TableHead>
+              <TableHead
                 style={{ padding: "10px 16px", fontSize: 14, fontWeight: 600 }}
               >
-                <div
+                Дүн
+              </TableHead>
+              <TableHead
+                style={{ padding: "10px 16px", fontSize: 14, fontWeight: 600 }}
+              >
+                Төлөв
+              </TableHead>
+              <TableHead />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {orders?.map((order: any) => (
+              <TableRow
+                key={order.id}
+                style={{
+                  padding: "10px 16px",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  borderBottom: "1px solid #F2F4F7",
+                }}
+              >
+                <TableCell
                   style={{
-                    display: "flex",
-                    background:
-                      order?.status === "created"
-                        ? "#FFFAEB"
-                        : order?.status === "canceled"
-                        ? "#FEF3F2"
-                        : "#ECFDF3",
-                    color:
-                      order?.status === "created"
-                        ? "#DC6803"
-                        : order?.status === "canceled"
-                        ? "#D92D20"
-                        : "#039855",
-
-                    padding: "0px 8px",
-                    borderRadius: 24,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    width: "fit-content",
+                    padding: "10px 16px",
+                    fontSize: 14,
+                    fontWeight: 600,
                   }}
                 >
-                  {order?.status}
-                </div>
-              </TableCell>
-              <TableCell
-                style={{ padding: "10px 16px", fontSize: 13, fontWeight: 700 }}
-              >
-                <Link href={`/payment/success?purchase=${order?.id}`}>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    rightIcon={<IconChevronRight color="#354052" size={16} />}
+                  #{order?.id}
+                </TableCell>
+                <TableCell
+                  style={{
+                    padding: "10px 16px",
+                    fontSize: 14,
+                    fontWeight: 400,
+                  }}
+                >
+                  {order?.created}
+                </TableCell>
+
+                <TableCell
+                  style={{
+                    padding: "10px 16px",
+                    fontSize: 14,
+                    fontWeight: 600,
+                  }}
+                >
+                  {formatCurrency(order?.totalamount)}
+                </TableCell>
+                <TableCell
+                  style={{
+                    padding: "10px 16px",
+                    fontSize: 14,
+                    fontWeight: 600,
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      background:
+                        order?.status === "created"
+                          ? "#FFFAEB"
+                          : order?.status === "canceled"
+                          ? "#FEF3F2"
+                          : "#ECFDF3",
+                      color:
+                        order?.status === "created"
+                          ? "#DC6803"
+                          : order?.status === "canceled"
+                          ? "#D92D20"
+                          : "#039855",
+
+                      padding: "0px 8px",
+                      borderRadius: 24,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      width: "fit-content",
+                    }}
                   >
-                    Дэлгэрэнгүй
-                  </Button>
-                </Link>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+                    {order?.status}
+                  </div>
+                </TableCell>
+                <TableCell
+                  style={{
+                    padding: "10px 16px",
+                    fontSize: 13,
+                    fontWeight: 700,
+                  }}
+                >
+                  <Link
+                    href={`/payment/success?purchase=${order?.id}`}
+                    target="_blank"
+                  >
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      rightIcon={<IconChevronRight color="#354052" size={16} />}
+                    >
+                      Дэлгэрэнгүй
+                    </Button>
+                  </Link>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      ) : (
+        <VStack w="full" gap={3} alignItems="center" justify="center">
+          <Image src="/empty.svg" width={356} height={356} />
+          <Text fontSize="lg" fontWeight="medium">
+            Захиалга олдсонгүй!
+          </Text>
+          <Text color={grey500} textAlign="center" maxW={400}>
+            Танд одоогоор захиалгын түүх байхгүй байна.
+          </Text>
+        </VStack>
+      )}
     </VStack>
   );
 };

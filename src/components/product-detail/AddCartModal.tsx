@@ -104,8 +104,8 @@ export const AddCartModal = (props: AddCartModal) => {
               src={
                 product?.images?.imgurl800 ||
                 product?.images?.imgurl400 ||
-                product?.partimages?.[0].imgurl800 ||
-                product?.partimages?.[0].imgurl400 ||
+                product?.partimages?.[0]?.imgurl800 ||
+                product?.partimages?.[0]?.imgurl400 ||
                 "/home/ridex.svg"
               }
               w={181}

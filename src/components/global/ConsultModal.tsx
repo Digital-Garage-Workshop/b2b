@@ -44,7 +44,7 @@ export const ConsultModal = (props: LogoutModal) => {
           <Stack p="10px" bg={iconBg} borderRadius="full">
             {icon}
           </Stack>
-          <Text variant="h8" color={textDefault}>
+          <Text variant="h8" color={textDefault} textAlign="center">
             {title}
           </Text>
           <Text

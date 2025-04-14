@@ -47,7 +47,7 @@ export default function Page() {
   };
 
   return (
-    <HStack w="full" pb={110} pt={6} align="flex-start">
+    <HStack w="full" pb={110} pt={6} align="flex-start" minH="100vh">
       <VStack flex={1} gap={6}>
         <OrderTrack orderDetail={purchaseDetail} />
         <VStack

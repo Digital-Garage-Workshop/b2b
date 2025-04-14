@@ -15,7 +15,10 @@ export const grey100='#F2F4F7'
 export const grey50 = '#F9FAFB'
 export const grey25 = '#FCFCFD'
 
+export const warning25 = '#FFFCF5'
 export const warning50 = '#FFFAEB'
+export const warning100 = '#FEF0C7'
+export const warning200 = '#FEDF89'
 export const warning600= '#DC6803'
 
 export const error600 = '#D92D20'

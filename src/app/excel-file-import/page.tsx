@@ -1,7 +1,8 @@
 "use client";
 
+import { ExcelImport } from "@/_services";
 import { BreadCrumb } from "@/components";
-import { useCustomToast } from "@/hooks";
+import { UseApi, useCustomToast } from "@/hooks";
 import { ExelIcon } from "@/icons";
 import { grey100, grey200, grey300, grey600, primary } from "@/theme/colors";
 import {
@@ -19,12 +20,17 @@ import {
   IconTrash,
   IconAlertCircle,
 } from "@tabler/icons-react";
-import { useState, useRef, DragEvent, ChangeEvent } from "react";
+import axios from "axios";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useState, useRef, DragEvent, ChangeEvent, useEffect } from "react";
 
 interface CrumbProps {
   path: string;
   href: string;
 }
+const REMOVED_PRODUCTS_KEY = "excel_import_removed_products";
+const DISPLAYED_OEMS_KEY = "excel_import_displayed_oems";
 
 export default function Page() {
   const [file, setFile] = useState<File | null>(null);
@@ -35,6 +41,16 @@ export default function Page() {
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [isUploaded, setIsUploaded] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
+  const router = useRouter();
+  const { data: session } = useSession();
+
+  const [
+    { data: excelResult, isLoading: excelLoader, error: excelErr },
+    excelSearch,
+  ] = UseApi({
+    service: ExcelImport,
+    useAuth: true,
+  });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const toast = useCustomToast();
@@ -61,9 +77,12 @@ export default function Page() {
       "application/vnd.ms-excel",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       "application/vnd.ms-excel.sheet.macroEnabled.12",
+      "text/csv",
     ];
 
     if (!validExcelTypes.includes(file.type)) {
+      console.log(file.type);
+
       setError("Зөвхөн Excel файл оруулна уу. (xls, xlsx)");
       toast({
         title: "Алдаа",
@@ -80,21 +99,39 @@ export default function Page() {
     setFileSize(formatFileSize(file.size));
 
     simulateUpload(file);
+    setUploadProgress(100);
+    setIsUploaded(true);
+    setIsUploading(false);
   };
 
   const handleDrop = (e: DragEvent<HTMLDivElement>): void => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
-
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      processFile(e.dataTransfer.files[0]);
+    if (session) {
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        processFile(e.dataTransfer.files[0]);
+      }
+    } else {
+      toast({
+        type: "error",
+        title: "Уучлаарай.",
+        description: "Та эхлээд нэвтэрч орно уу.",
+      });
     }
   };
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>): void => {
-    if (e.target.files && e.target.files.length > 0) {
-      processFile(e.target.files[0]);
+    if (session) {
+      if (e.target.files && e.target.files.length > 0) {
+        processFile(e.target.files[0]);
+      }
+    } else {
+      toast({
+        type: "error",
+        title: "Уучлаарай.",
+        description: "Та эхлээд нэвтэрч орно уу.",
+      });
     }
   };
 
@@ -131,7 +168,7 @@ export default function Page() {
           type: "success",
         });
       }
-    }, 50); // Update every 50ms for smooth animation
+    }, 30);
   };
 
   const handleBoxClick = (): void => {
@@ -147,8 +184,9 @@ export default function Page() {
     setUploadProgress(0);
     setIsUploaded(false);
     setIsUploading(false);
+    localStorage.removeItem(REMOVED_PRODUCTS_KEY);
+    localStorage.removeItem(DISPLAYED_OEMS_KEY);
 
-    // Reset file input
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -157,25 +195,14 @@ export default function Page() {
   const handleDownloadTemplate = (): void => {
     try {
       const templateData = [
-        [
-          "Part Number",
-          "Quantity",
-          "Description",
-          "Brand",
-          "Vehicle Model",
-          "Year",
-          "Notes",
-        ],
-        [
-          "GS-12345",
-          "2",
-          "Oil Filter",
-          "RIDEX",
-          "Toyota Camry",
-          "2020",
-          "Original parts only",
-        ],
-        ["", "", "", "", "", "", ""],
+        ["oem", "quantity"],
+        ["4853048020", "2"],
+        ["74062587", "4"],
+        ["9091901167", "4"],
+        ["71739867", "4"],
+        ["8a0513029g", "7"],
+        ["5960c2", "2"],
+        ["", ""],
       ];
 
       const arrayToCSV = (data: string[][]): string => {
@@ -222,7 +249,7 @@ export default function Page() {
     }
   };
 
-  const handleSearch = (): void => {
+  const handleSearchDirect = async () => {
     if (!file) {
       toast({
         title: "Анхааруулга",
@@ -232,32 +259,77 @@ export default function Page() {
       return;
     }
 
-    if (!isUploaded) {
-      toast({
-        title: "Анхааруулга",
-        description: "Файл байршуулалт дуусахыг хүлээнэ үү",
-        type: "warning",
-      });
-      return;
-    }
+    try {
+      const reader = new FileReader();
 
-    toast({
-      title: "Амжилттай",
-      description: "Хайлт эхэллээ",
-      type: "success",
-    });
+      reader.onloadend = () => {
+        sessionStorage.setItem("fileName", file.name);
+        sessionStorage.setItem("fileData", reader.result as string);
+      };
+
+      reader.readAsDataURL(file);
+
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const api = process.env.NEXT_PUBLIC_URL_API;
+
+        const response = await axios.post(
+          `${api}/user/excel/oemimport`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${session?.user?.accessToken}`,
+            },
+          }
+        );
+
+        if (response.data.success) {
+          router.push("/excel-file-import/result");
+        } else {
+          toast({
+            title: "Алдаа",
+            description: response.data.message || "Хайлтын үед алдаа гарлаа",
+            type: "error",
+          });
+        }
+      } catch (error: any) {
+        console.error("Direct API error:", error);
+        if (error?.response?.status === 401) {
+          // signOut({ redirect: false });
+        }
+        toast({
+          title: "Алдаа",
+          description: "Хайлтын үед алдаа гарлаа",
+          type: "error",
+        });
+      }
+    } catch (error) {
+      console.error("Direct API error:", error);
+      toast({
+        title: "Алдаа",
+        description: "Хайлтын үед алдаа гарлаа",
+        type: "error",
+      });
+    }
   };
 
+  useEffect(() => {
+    localStorage.removeItem(REMOVED_PRODUCTS_KEY);
+    localStorage.removeItem(DISPLAYED_OEMS_KEY);
+  }, []);
+
   return (
-    <VStack w="full" gap={6} minH="100vh">
+    <VStack w="full" gap={6} minH="100vh" pb={110}>
       <BreadCrumb
         crumbs={[{ path: "Excel import", href: "" } as CrumbProps]}
         mb={-2}
       />
       <VStack w="full" align="flex-start">
-        <Text variant="h5">Сэлбэгийн ангилал</Text>
+        <Text variant="h5">Excel файлаар хайх</Text>
         <Text variant="body1" color={grey600}>
-          Эдийн дугаар, тоо хэмжээ бүхий файлыг байршуулах
+          OEM дугаар болон тоо хэмжээ бүхий файлыг байршуулах
         </Text>
       </VStack>
 
@@ -286,7 +358,7 @@ export default function Page() {
             type="file"
             ref={fileInputRef}
             onChange={handleFileChange}
-            accept=".xls,.xlsx,.xlsm"
+            accept=".xls,.xlsx,.xlsm, .csv"
             style={{ display: "none" }}
           />
 
@@ -313,11 +385,14 @@ export default function Page() {
             </Stack>
           </Stack>
           <Text variant="title2" mt={8}>
-            {isDragging ? "Файлыг энд буулгана уу" : "Drag and drop file here"}
+            {isDragging
+              ? "Файлыг энд буулгана уу"
+              : "Энд дарж файлаа оруулна уу"}
           </Text>
           <Text variant="body3" color={grey600} maxW={436} textAlign="center">
-            Та захиалахыг хүсч буй машины сэлбэгийнхээ жагсаалтыг байршуулна уу.
-            Та файлын форматыг ашиглаж болно: xls, xlsx
+            Захиалах бүтээгдэхүүнийхээ OEM дугаар болон тоо ширхэг бүхий xls,
+            xlsx, csv өргөтгөлтэй файл оруулах. XLS, XLSX, CSV өргөтгөлийн
+            загварыг доор байрлах Exel-ийн загвар татах товч дээр дарна уу
           </Text>
           {error && (
             <HStack color="red.500" mt={2}>
@@ -335,7 +410,7 @@ export default function Page() {
           border={`1px solid ${isUploaded ? primary : grey300}`}
           w="full"
           transition="all 0.3s ease"
-          bg={isUploaded ? "rgba(247, 91, 0, 0.03)" : "transparent"}
+          bg="transparent"
         >
           <HStack w="full" gap={4} align="flex-start">
             <Stack
@@ -425,8 +500,10 @@ export default function Page() {
         </Button>
         <Button
           flex={1}
-          onClick={handleSearch}
-          isDisabled={!file || isUploading || !isUploaded}
+          onClick={handleSearchDirect}
+          isDisabled={
+            !file || isUploading || !isUploaded || uploadProgress != 100
+          }
           opacity={!file || isUploading || !isUploaded ? 0.7 : 1}
           transition="all 0.3s ease"
           // _hover={{

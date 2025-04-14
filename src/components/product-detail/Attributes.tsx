@@ -55,7 +55,7 @@ export const Attributes = (props: { product: any }) => {
 
   return (
     <VStack align="flex-start" w="36%">
-      <Text variant="subtitle2">{product?.articleid}</Text>
+      <Text variant="subtitle2">Сэлбэгийн дугаар: {product?.articleid}</Text>
       <Text variant="h7">
         {product?.brandname} {product?.partname}
       </Text>

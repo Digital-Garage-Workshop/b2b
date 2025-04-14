@@ -17,20 +17,20 @@ export const Providers = ({
 {
   children: ReactNode;
 }) => {
-  // useEffect(() => {
-  //   import("@userback/widget")
-  //     .then((Userback) => {
-  //       Userback.default("A-VqwD44zeaW8yf65jsLL1O1LEQ").then((ub: any) => {
-  //         ub.identify("123456", {
-  //           name: "someone",
-  //           email: "someone@example.com",
-  //         });
-  //       });
-  //     })
-  //     .catch((error) => {
-  //       console.error("Failed to load Userback widget:", error);
-  //     });
-  // }, []);
+  useEffect(() => {
+    import("@userback/widget")
+      .then((Userback) => {
+        Userback.default("A-LWKm0zEYefPcVUVFojPXOxHwm").then((ub: any) => {
+          ub.identify("123456", {
+            name: "someone",
+            email: "someone@example.com",
+          });
+        });
+      })
+      .catch((error) => {
+        console.error("Failed to load Userback widget:", error);
+      });
+  }, []);
 
   return (
     <>
